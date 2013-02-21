@@ -23,6 +23,7 @@ package org.hibernate.ogm.test.utils;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.ejb.HibernateEntityManagerFactory;
+import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.util.impl.Log;
 import org.hibernate.ogm.util.impl.LoggerFactory;
@@ -133,5 +134,9 @@ public class TestHelper {
 
 	public static void initializeHelpers() {
 		// just to make sure helper is initialized
+	}
+
+	public static GridDialect getDialect(SessionFactory sessionFactory) {
+		return helper.getGridDialect( sessionFactory );
 	}
 }

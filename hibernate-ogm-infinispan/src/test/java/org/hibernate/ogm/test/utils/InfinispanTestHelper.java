@@ -28,7 +28,11 @@ import java.util.Map;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.ogm.datastore.infinispan.impl.InfinispanDatastoreProvider;
+import org.hibernate.ogm.datastore.map.impl.HashMapDialect;
+import org.hibernate.ogm.datastore.map.impl.MapDatastoreProvider;
 import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.dialect.infinispan.InfinispanDialect;
 import org.hibernate.ogm.grid.EntityKey;
 import org.infinispan.Cache;
 
@@ -85,4 +89,9 @@ public class InfinispanTestHelper implements TestableGridDialect {
 		return null;
 	}
 
+	@Override
+	public GridDialect getGridDialect(SessionFactory sessionFactory) {
+		InfinispanDatastoreProvider provider = getProvider( sessionFactory );
+		return new InfinispanDialect( provider );
+	}
 }

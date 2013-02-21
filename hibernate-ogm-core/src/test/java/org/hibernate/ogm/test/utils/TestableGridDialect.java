@@ -23,6 +23,7 @@ package org.hibernate.ogm.test.utils;
 import java.util.Map;
 
 import org.hibernate.SessionFactory;
+import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.EntityKey;
 
 /**
@@ -76,4 +77,6 @@ public interface TestableGridDialect {
 	 * This is typical of the host and port defined using an environment variable.
 	 */
 	Map<String,String> getEnvironmentProperties();
+
+	GridDialect getGridDialect(SessionFactory sessionFactory);
 }

@@ -24,8 +24,10 @@ import java.util.Map;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.ogm.datastore.map.impl.HashMapDialect;
 import org.hibernate.ogm.datastore.map.impl.MapDatastoreProvider;
 import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
@@ -81,6 +83,12 @@ public class HashMapTestHelper implements TestableGridDialect {
 	@Override
 	public Map<String, String> getEnvironmentProperties() {
 		return null;
+	}
+
+	@Override
+	public GridDialect getGridDialect(SessionFactory sessionFactory) {
+		MapDatastoreProvider provider = getProvider( sessionFactory );
+		return new HashMapDialect( provider );
 	}
 
 }
