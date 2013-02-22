@@ -28,6 +28,7 @@ import org.hibernate.Transaction;
 import org.hibernate.ogm.test.hsearch.Insurance;
 import org.hibernate.ogm.test.simpleentity.OgmTestCase;
 import org.hibernate.search.FullTextSession;
+import org.hibernate.search.Search;
 import org.junit.Test;
 
 /**
@@ -48,7 +49,7 @@ public class MassIndexTest extends OgmTestCase {
 			session.close();
 		}
 		{
-			FullTextSession session = (FullTextSession) openSession();
+			FullTextSession session = Search.getFullTextSession( openSession() );
 			session.createIndexer( Insurance.class ).purgeAllOnStart( true ).startAndWait();
 		}
 		{

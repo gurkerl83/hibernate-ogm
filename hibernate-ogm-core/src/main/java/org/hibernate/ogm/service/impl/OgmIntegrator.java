@@ -33,9 +33,13 @@ import org.hibernate.ogm.dialect.OgmDialectFactoryInitiator;
 import org.hibernate.ogm.dialect.impl.GridDialectFactoryInitiator;
 import org.hibernate.ogm.jdbc.OgmConnectionProviderInitiator;
 import org.hibernate.ogm.jpa.impl.OgmPersisterClassResolverInitiator;
+import org.hibernate.ogm.massindex.OgmMassIndexerFactory;
+import org.hibernate.ogm.massindex.OgmMassIndexerInitiator;
 import org.hibernate.ogm.transaction.impl.OgmJtaPlatformInitiator;
 import org.hibernate.ogm.transaction.impl.OgmTransactionFactoryInitiator;
 import org.hibernate.ogm.type.impl.TypeTranslatorInitiator;
+import org.hibernate.search.hcore.impl.MassIndexerFactoryIntegrator;
+import org.hibernate.search.spi.MassIndexerFactory;
 import org.hibernate.service.ServiceRegistryBuilder;
 import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
@@ -54,6 +58,7 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
  * @author Emmanuel Bernard <emmanuel@hibernate.org>
  */
 public class OgmIntegrator implements Integrator, ServiceContributingIntegrator {
+
 	@Override
 	public void integrate(Configuration configuration, SessionFactoryImplementor sessionFactory, SessionFactoryServiceRegistry serviceRegistry) {
 		if ( ! serviceRegistry.getService( ConfigurationService.class ).isOgmOn() ) {
@@ -87,5 +92,6 @@ public class OgmIntegrator implements Integrator, ServiceContributingIntegrator 
 		serviceRegistryBuilder.addInitiator( GridDialectFactoryInitiator.INSTANCE );
 		serviceRegistryBuilder.addInitiator( TypeTranslatorInitiator.INSTANCE );
 		serviceRegistryBuilder.addInitiator( QueryParserServicesInitiatior.INSTANCE );
+		serviceRegistryBuilder.addInitiator( OgmMassIndexerInitiator.INSTANCE );
 	}
 }

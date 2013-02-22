@@ -63,7 +63,6 @@ import org.hibernate.id.IdentifierGenerator;
 import org.hibernate.id.factory.IdentifierGeneratorFactory;
 import org.hibernate.metadata.ClassMetadata;
 import org.hibernate.metadata.CollectionMetadata;
-import org.hibernate.ogm.exception.NotSupportedException;
 import org.hibernate.persister.collection.CollectionPersister;
 import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.proxy.EntityNotFoundDelegate;
@@ -303,17 +302,17 @@ public class OgmSessionFactory implements SessionFactoryImplementor {
 
 	@Override
 	public StatelessSessionBuilder withStatelessOptions() {
-		return null;  //To change body of implemented methods use File | Settings | File Templates.
+		return new OgmStatelessSessionBuilderDelegator( delegate.withStatelessOptions(), this );
 	}
 
 	@Override
 	public StatelessSession openStatelessSession() {
-		throw new NotSupportedException( "OGM-18", "Stateless session is not implemented in OGM" );
+		return withStatelessOptions().openStatelessSession();
 	}
 
 	@Override
 	public StatelessSession openStatelessSession(Connection connection) {
-		throw new NotSupportedException( "OGM-18", "Stateless session is not implemented in OGM" );
+		return withStatelessOptions().connection( connection ).openStatelessSession();
 	}
 
 	@Override
@@ -447,4 +446,5 @@ public class OgmSessionFactory implements SessionFactoryImplementor {
 				null
 				);
 	}
+
 }
