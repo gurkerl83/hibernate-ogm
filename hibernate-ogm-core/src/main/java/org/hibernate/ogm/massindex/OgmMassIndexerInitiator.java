@@ -26,6 +26,8 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.integrator.spi.ServiceContributingIntegrator;
 import org.hibernate.metamodel.source.MetadataImplementor;
+import org.hibernate.ogm.datastore.impl.DatastoreServices;
+import org.hibernate.ogm.datastore.spi.DatastoreProvider;
 import org.hibernate.search.hcore.impl.MassIndexerFactoryIntegrator;
 import org.hibernate.search.spi.MassIndexerFactory;
 import org.hibernate.service.ServiceRegistryBuilder;
@@ -49,7 +51,8 @@ public class OgmMassIndexerInitiator implements BasicServiceInitiator<MassIndexe
 	public MassIndexerFactory initiateService(Map configurationValues, ServiceRegistryImplementor registry) {
 		String factoryClassName = (String) configurationValues.get( MassIndexerFactoryIntegrator.MASS_INDEXER_FACTORY_CLASSNAME );
 		if (factoryClassName == null) {
-			return new OgmMassIndexerFactory();
+			DatastoreServices services = registry.getService( DatastoreServices.class );
+			return new OgmMassIndexerFactory( services.getGridDialect() );
 		} else {
 			return new MassIndexerFactoryIntegrator().initiateService( configurationValues, registry );
 		}

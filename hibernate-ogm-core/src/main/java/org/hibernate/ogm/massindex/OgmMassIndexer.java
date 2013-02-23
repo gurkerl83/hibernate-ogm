@@ -24,6 +24,7 @@ import java.util.concurrent.Future;
 
 import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
+import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
@@ -36,90 +37,113 @@ public class OgmMassIndexer implements MassIndexer {
 	private final SearchFactoryImplementor searchFactory;
 	private final SessionFactory sessionFactory;
 	private final Class<?>[] entities;
+	private final GridDialect gridDialect;
 
-	public OgmMassIndexer(SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
+	private int threadsToLoad = 2;
+	private int batchSize = 10;
+	private int threadsForSubsequent;
+	private int threadsForIndex;
+	private MassIndexerProgressMonitor monitor;
+	private CacheMode cacheMode;
+	private boolean optimizeOnFinish;
+	private boolean optimizeAfterPurge;
+	private boolean purgeAllOnStart;
+	private long limitIndexedObjectsTo;
+	private int idFetchSize;
+
+	public OgmMassIndexer(GridDialect gridDialect, SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
+		this.gridDialect = gridDialect;
 		this.searchFactory = searchFactory;
 		this.sessionFactory = sessionFactory;
 		this.entities = entities;
 	}
 
 	@Override
-	public MassIndexer threadsToLoadObjects(int numberOfThreads) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer threadsToLoadObjects(int threadsToLoad) {
+		if ( threadsToLoad < 1 ) {
+			throw new IllegalArgumentException( "numberOfThreads must be at least 1" );
+		}
+		this.threadsToLoad = threadsToLoad;
+		return this;
 	}
 
 	@Override
 	public MassIndexer batchSizeToLoadObjects(int batchSize) {
-		// TODO Auto-generated method stub
-		return null;
+		if ( batchSize < 1 ) {
+			throw new IllegalArgumentException( "batchSize must be at least 1" );
+		}
+		this.batchSize = batchSize;
+		return this;
 	}
 
 	@Override
-	public MassIndexer threadsForSubsequentFetching(int numberOfThreads) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer threadsForSubsequentFetching(int threadsForSubsequent) {
+		if ( threadsForSubsequent < 1 ) {
+			throw new IllegalArgumentException( "numberOfThreads must be at least 1" );
+		}
+		this.threadsForSubsequent = threadsForSubsequent;
+		return this;
 	}
 
 	@Override
 	@Deprecated
-	public MassIndexer threadsForIndexWriter(int numberOfThreads) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer threadsForIndexWriter(int threadsForIndex) {
+		this.threadsForIndex = threadsForIndex;
+		return this;
 	}
 
 	@Override
 	public MassIndexer progressMonitor(MassIndexerProgressMonitor monitor) {
-		// TODO Auto-generated method stub
-		return null;
+		this.monitor = monitor;
+		return this;
 	}
 
 	@Override
 	public MassIndexer cacheMode(CacheMode cacheMode) {
-		// TODO Auto-generated method stub
-		return null;
+		if ( cacheMode == null ) {
+			throw new IllegalArgumentException( "cacheMode must not be null" );
+		}
+		this.cacheMode = cacheMode;
+		return this;
 	}
 
 	@Override
-	public MassIndexer optimizeOnFinish(boolean optimize) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer optimizeOnFinish(boolean optimizeOnFinish) {
+		this.optimizeOnFinish = optimizeOnFinish;
+		return this;
 	}
 
 	@Override
-	public MassIndexer optimizeAfterPurge(boolean optimize) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer optimizeAfterPurge(boolean optimizeAfterPurge) {
+		this.optimizeAfterPurge = optimizeAfterPurge;
+		return this;
 	}
 
 	@Override
-	public MassIndexer purgeAllOnStart(boolean purgeAll) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer purgeAllOnStart(boolean purgeAllOnStart) {
+		this.purgeAllOnStart = purgeAllOnStart;
+		return this;
 	}
 
 	@Override
-	public MassIndexer limitIndexedObjectsTo(long maximum) {
-		// TODO Auto-generated method stub
-		return null;
+	public MassIndexer limitIndexedObjectsTo(long limitIndexedObjectsTo) {
+		this.limitIndexedObjectsTo = limitIndexedObjectsTo;
+		return this;
+	}
+
+	@Override
+	public MassIndexer idFetchSize(int idFetchSize) {
+		this.idFetchSize = idFetchSize;
+		return this;
 	}
 
 	@Override
 	public Future<?> start() {
-		// TODO Auto-generated method stub
 		return null;
 	}
 
 	@Override
 	public void startAndWait() throws InterruptedException {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public MassIndexer idFetchSize(int idFetchSize) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
