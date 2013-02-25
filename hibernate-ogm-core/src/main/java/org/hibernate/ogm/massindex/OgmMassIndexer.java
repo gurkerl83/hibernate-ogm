@@ -28,6 +28,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
+import org.hibernate.search.impl.MassIndexerImpl;
 
 /**
  * @author Davide D'Alto <davide@hibernate.org>
@@ -39,111 +40,66 @@ public class OgmMassIndexer implements MassIndexer {
 	private final Class<?>[] entities;
 	private final GridDialect gridDialect;
 
-	private int threadsToLoad = 2;
-	private int batchSize = 10;
-	private int threadsForSubsequent;
-	private int threadsForIndex;
-	private MassIndexerProgressMonitor monitor;
-	private CacheMode cacheMode;
-	private boolean optimizeOnFinish;
-	private boolean optimizeAfterPurge;
-	private boolean purgeAllOnStart;
-	private long limitIndexedObjectsTo;
-	private int idFetchSize;
+	private final MassIndexer indexer;
 
 	public OgmMassIndexer(GridDialect gridDialect, SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
 		this.gridDialect = gridDialect;
 		this.searchFactory = searchFactory;
 		this.sessionFactory = sessionFactory;
 		this.entities = entities;
+		this.indexer = new MassIndexerImpl( searchFactory, sessionFactory, entities );
 	}
 
-	@Override
-	public MassIndexer threadsToLoadObjects(int threadsToLoad) {
-		if ( threadsToLoad < 1 ) {
-			throw new IllegalArgumentException( "numberOfThreads must be at least 1" );
-		}
-		this.threadsToLoad = threadsToLoad;
-		return this;
+	public MassIndexer threadsToLoadObjects(int numberOfThreads) {
+		return indexer.threadsToLoadObjects( numberOfThreads );
 	}
 
-	@Override
 	public MassIndexer batchSizeToLoadObjects(int batchSize) {
-		if ( batchSize < 1 ) {
-			throw new IllegalArgumentException( "batchSize must be at least 1" );
-		}
-		this.batchSize = batchSize;
-		return this;
+		return indexer.batchSizeToLoadObjects( batchSize );
 	}
 
-	@Override
-	public MassIndexer threadsForSubsequentFetching(int threadsForSubsequent) {
-		if ( threadsForSubsequent < 1 ) {
-			throw new IllegalArgumentException( "numberOfThreads must be at least 1" );
-		}
-		this.threadsForSubsequent = threadsForSubsequent;
-		return this;
+	public MassIndexer threadsForSubsequentFetching(int numberOfThreads) {
+		return indexer.threadsForSubsequentFetching( numberOfThreads );
 	}
 
-	@Override
-	@Deprecated
-	public MassIndexer threadsForIndexWriter(int threadsForIndex) {
-		this.threadsForIndex = threadsForIndex;
-		return this;
+	public MassIndexer threadsForIndexWriter(int numberOfThreads) {
+		return indexer.threadsForIndexWriter( numberOfThreads );
 	}
 
-	@Override
 	public MassIndexer progressMonitor(MassIndexerProgressMonitor monitor) {
-		this.monitor = monitor;
-		return this;
+		return indexer.progressMonitor( monitor );
 	}
 
-	@Override
 	public MassIndexer cacheMode(CacheMode cacheMode) {
-		if ( cacheMode == null ) {
-			throw new IllegalArgumentException( "cacheMode must not be null" );
-		}
-		this.cacheMode = cacheMode;
-		return this;
+		return indexer.cacheMode( cacheMode );
 	}
 
-	@Override
-	public MassIndexer optimizeOnFinish(boolean optimizeOnFinish) {
-		this.optimizeOnFinish = optimizeOnFinish;
-		return this;
+	public MassIndexer optimizeOnFinish(boolean optimize) {
+		return indexer.optimizeOnFinish( optimize );
 	}
 
-	@Override
-	public MassIndexer optimizeAfterPurge(boolean optimizeAfterPurge) {
-		this.optimizeAfterPurge = optimizeAfterPurge;
-		return this;
+	public MassIndexer optimizeAfterPurge(boolean optimize) {
+		return indexer.optimizeAfterPurge( optimize );
 	}
 
-	@Override
-	public MassIndexer purgeAllOnStart(boolean purgeAllOnStart) {
-		this.purgeAllOnStart = purgeAllOnStart;
-		return this;
+	public MassIndexer purgeAllOnStart(boolean purgeAll) {
+		return indexer.purgeAllOnStart( purgeAll );
 	}
 
-	@Override
-	public MassIndexer limitIndexedObjectsTo(long limitIndexedObjectsTo) {
-		this.limitIndexedObjectsTo = limitIndexedObjectsTo;
-		return this;
+	public MassIndexer limitIndexedObjectsTo(long maximum) {
+		return indexer.limitIndexedObjectsTo( maximum );
 	}
 
-	@Override
-	public MassIndexer idFetchSize(int idFetchSize) {
-		this.idFetchSize = idFetchSize;
-		return this;
-	}
-
-	@Override
 	public Future<?> start() {
-		return null;
+		return indexer.start();
 	}
 
-	@Override
 	public void startAndWait() throws InterruptedException {
+		indexer.startAndWait();
+	}
+
+	public MassIndexer idFetchSize(int idFetchSize) {
+		return indexer.idFetchSize( idFetchSize );
 	}
 
 }
