@@ -40,7 +40,7 @@ import org.hibernate.service.spi.SessionFactoryServiceRegistry;
  */
 public class OgmMassIndexerInitiator implements BasicServiceInitiator<MassIndexerFactory> {
 
-	public static final BasicServiceInitiator INSTANCE = new OgmMassIndexerInitiator();
+	public static final OgmMassIndexerInitiator INSTANCE = new OgmMassIndexerInitiator();
 
 	@Override
 	public Class<MassIndexerFactory> getServiceInitiated() {
