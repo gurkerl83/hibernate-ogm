@@ -27,6 +27,7 @@ import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.dialect.lock.OptimisticForceIncrementLockingStrategy;
 import org.hibernate.dialect.lock.OptimisticLockingStrategy;
@@ -182,5 +183,17 @@ public class EhcacheDialect implements GridDialect {
 
 	private Cache getAssociationCache() {
 		return datastoreProvider.getCacheManager().getCache( DefaultDatastoreNames.ASSOCIATION_STORE );
+	}
+
+	@Override
+	public long countEntities(String idNameOfIndexedType) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
+		// TODO Auto-generated method stub
+		return null;
 	}
 }

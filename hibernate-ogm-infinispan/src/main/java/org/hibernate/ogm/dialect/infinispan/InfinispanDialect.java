@@ -27,6 +27,7 @@ import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.IDENTIFIER_S
 import java.util.Map;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.dialect.lock.OptimisticForceIncrementLockingStrategy;
 import org.hibernate.dialect.lock.OptimisticLockingStrategy;
@@ -197,6 +198,18 @@ public class InfinispanDialect implements GridDialect {
 
 	@Override
 	public GridType overrideType(Type type) {
+		return null;
+	}
+
+	@Override
+	public long countEntities(String idNameOfIndexedType) {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 

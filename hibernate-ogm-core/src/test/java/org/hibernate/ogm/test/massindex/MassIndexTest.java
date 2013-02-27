@@ -25,6 +25,9 @@ import java.util.List;
 import static org.fest.assertions.Assertions.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.ogm.datastore.map.impl.HashMapDialect;
+import org.hibernate.ogm.datastore.map.impl.MapDatastoreProvider;
 import org.hibernate.ogm.test.hsearch.Insurance;
 import org.hibernate.ogm.test.simpleentity.OgmTestCase;
 import org.hibernate.search.FullTextSession;
@@ -42,8 +45,8 @@ public class MassIndexTest extends OgmTestCase {
 			Session session = openSession();
 			Transaction transaction = session.beginTransaction();
 			Insurance insurance = new Insurance();
-			insurance.setId( "AVI" );
-			insurance.setName( "Aviva" );
+			insurance.setName( "Insurance Corporation" );
+			session.persist( insurance );
 			transaction.commit();
 			session.clear();
 			session.close();
@@ -57,11 +60,17 @@ public class MassIndexTest extends OgmTestCase {
 			Transaction transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
 			List<Insurance> list = session.createQuery( "FROM Insurance" ).list();
-			assertThat( list.get( 0 ).getName() ).equals( "Aviva" ); 
+			assertThat( list.get( 0 ).getName() ).equals( "Insurance Corporation" );
 			transaction.commit();
 			session.clear();
 			session.close();
 		}
+	}
+
+	@Override
+	protected void configure(Configuration cfg) {
+		super.configure( cfg );
+		cfg.setProperty( "hibernate.ogm.datastore.provider", MapDatastoreProvider.class.getName() );
 	}
 
 	@Override

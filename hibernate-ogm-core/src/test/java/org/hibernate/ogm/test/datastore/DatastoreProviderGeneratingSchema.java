@@ -21,6 +21,7 @@
 package org.hibernate.ogm.test.datastore;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
@@ -146,6 +147,18 @@ public class DatastoreProviderGeneratingSchema implements DatastoreProvider, Sta
 		@Override
 		public GridType overrideType(Type type) {
 			// No types to override
+			return null;
+		}
+
+		@Override
+		public long countEntities(String indexedType) {
+			// TODO Auto-generated method stub
+			return 0;
+		}
+
+		@Override
+		public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
+			// TODO Auto-generated method stub
 			return null;
 		}
 	}

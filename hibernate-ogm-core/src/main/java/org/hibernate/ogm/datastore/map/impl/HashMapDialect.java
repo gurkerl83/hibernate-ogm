@@ -20,10 +20,20 @@
  */
 package org.hibernate.ogm.datastore.map.impl;
 
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.sql.Blob;
+import java.sql.Clob;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.TimeZone;
 
+import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.dialect.lock.OptimisticForceIncrementLockingStrategy;
 import org.hibernate.dialect.lock.OptimisticLockingStrategy;
@@ -57,24 +67,23 @@ public class HashMapDialect implements GridDialect {
 
 	@Override
 	public LockingStrategy getLockingStrategy(Lockable lockable, LockMode lockMode) {
-		if ( lockMode==LockMode.PESSIMISTIC_FORCE_INCREMENT ) {
+		if ( lockMode == LockMode.PESSIMISTIC_FORCE_INCREMENT ) {
 			return new PessimisticForceIncrementLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.PESSIMISTIC_WRITE ) {
+		else if ( lockMode == LockMode.PESSIMISTIC_WRITE ) {
 			return new MapPessimisticWriteLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.PESSIMISTIC_READ ) {
+		else if ( lockMode == LockMode.PESSIMISTIC_READ ) {
 			return new MapPessimisticReadLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.OPTIMISTIC ) {
+		else if ( lockMode == LockMode.OPTIMISTIC ) {
 			return new OptimisticLockingStrategy( lockable, lockMode );
 		}
-		else if ( lockMode==LockMode.OPTIMISTIC_FORCE_INCREMENT ) {
+		else if ( lockMode == LockMode.OPTIMISTIC_FORCE_INCREMENT ) {
 			return new OptimisticForceIncrementLockingStrategy( lockable, lockMode );
 		}
 		return new MapPessimisticWriteLockingStrategy( lockable, lockMode );
 	}
-
 
 	@Override
 	public Tuple getTuple(EntityKey key, TupleContext tupleContext) {
@@ -89,14 +98,14 @@ public class HashMapDialect implements GridDialect {
 
 	@Override
 	public Tuple createTuple(EntityKey key) {
-		HashMap<String,Object> tuple = new HashMap<String,Object>();
+		HashMap<String, Object> tuple = new HashMap<String, Object>();
 		provider.putEntity( key, tuple );
 		return new Tuple( new MapTupleSnapshot( tuple ) );
 	}
 
 	@Override
 	public void updateTuple(Tuple tuple, EntityKey key) {
-		Map<String,Object> entityRecord = ( (MapTupleSnapshot) tuple.getSnapshot() ).getMap();
+		Map<String, Object> entityRecord = ( (MapTupleSnapshot) tuple.getSnapshot() ).getMap();
 		MapHelpers.applyTupleOpsOnMap( tuple, entityRecord );
 	}
 
@@ -113,7 +122,7 @@ public class HashMapDialect implements GridDialect {
 
 	@Override
 	public Association createAssociation(AssociationKey key) {
-		Map<RowKey, Map<String, Object>> associationMap = new HashMap<RowKey, Map<String,Object>>();
+		Map<RowKey, Map<String, Object>> associationMap = new HashMap<RowKey, Map<String, Object>>();
 		provider.putAssociation( key, associationMap );
 		return new Association( new MapAssociationSnapshot( associationMap ) );
 	}
@@ -142,6 +151,215 @@ public class HashMapDialect implements GridDialect {
 	@Override
 	public GridType overrideType(Type type) {
 		return null;
+	}
+
+	@Override
+	public long countEntities(String indexedType) {
+		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
+		return entityMap.size();
+	}
+
+	@Override
+	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
+		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
+		return new ScrollableResults() {
+
+			@Override
+			public boolean setRowNumber(int rowNumber) throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean scroll(int i) throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean previous() throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean next() throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean last() throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean isLast() throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public boolean isFirst() throws HibernateException {
+				return false;
+			}
+
+			@Override
+			public Type getType(int i) {
+				return null;
+			}
+
+			@Override
+			public TimeZone getTimeZone(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getText(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public String getString(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Short getShort(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public int getRowNumber() throws HibernateException {
+				// TODO Auto-generated method stub
+				return 0;
+			}
+
+			@Override
+			public Long getLong(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Locale getLocale(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Integer getInteger(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Float getFloat(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Double getDouble(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Date getDate(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Clob getClob(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Character getCharacter(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Calendar getCalendar(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Byte getByte(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Boolean getBoolean(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Blob getBlob(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public byte[] getBinary(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public BigInteger getBigInteger(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public BigDecimal getBigDecimal(int col) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Object get(int i) throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public Object[] get() throws HibernateException {
+				// TODO Auto-generated method stub
+				return null;
+			}
+
+			@Override
+			public boolean first() throws HibernateException {
+				// TODO Auto-generated method stub
+				return false;
+			}
+
+			@Override
+			public void close() throws HibernateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void beforeFirst() throws HibernateException {
+				// TODO Auto-generated method stub
+
+			}
+
+			@Override
+			public void afterLast() throws HibernateException {
+				// TODO Auto-generated method stub
+
+			}
+		};
 	}
 
 }

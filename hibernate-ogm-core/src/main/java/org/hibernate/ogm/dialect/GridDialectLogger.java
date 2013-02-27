@@ -21,6 +21,7 @@
 package org.hibernate.ogm.dialect;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.id.IntegralDataTypeHolder;
 import org.hibernate.ogm.datastore.spi.Association;
@@ -148,6 +149,19 @@ public class GridDialectLogger implements GridDialect {
 	@Override
 	public GridType overrideType(Type type) {
 		return gridDialect.overrideType( type );
+	}
+
+	@Override
+	public long countEntities(String indexedType) {
+		long result = gridDialect.countEntities( indexedType );
+		log.tracef( "Number of entities: %1$s", result );
+		return result;
+	}
+
+	@Override
+	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
+		log.tracef( "Loading entities");
+		return gridDialect.loadEntities( indexedType, idFetchSize );
 	}
 
 }

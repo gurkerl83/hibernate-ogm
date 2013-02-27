@@ -29,6 +29,7 @@ import org.hibernate.ogm.type.GridType;
 import org.hibernate.service.Service;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.ogm.datastore.spi.Association;
 import org.hibernate.ogm.datastore.spi.Tuple;
@@ -107,4 +108,17 @@ public interface GridDialect extends Service {
 	 * Experimental: this API might change in the future
 	 */
 	GridType overrideType(Type type);
+
+	/**
+	 * @param idNameOfIndexedType
+	 * @return
+	 */
+	long countEntities(String idNameOfIndexedType);
+
+	/**
+	 * @param indexedType
+	 * @param idFetchSize
+	 * @return
+	 */
+	ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize);
 }

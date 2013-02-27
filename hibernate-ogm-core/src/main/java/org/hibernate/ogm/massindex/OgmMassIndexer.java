@@ -20,86 +20,205 @@
  */
 package org.hibernate.ogm.massindex;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 
 import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.massindex.batchindexing.BatchCoordinator;
+import org.hibernate.ogm.massindex.batchindexing.Executors;
+import org.hibernate.ogm.util.impl.Log;
+import org.hibernate.ogm.util.impl.LoggerFactory;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
-import org.hibernate.search.impl.MassIndexerImpl;
+import org.hibernate.search.impl.SimpleIndexingProgressMonitor;
+import org.hibernate.search.jmx.IndexingProgressMonitor;
 
 /**
  * @author Davide D'Alto <davide@hibernate.org>
  */
 public class OgmMassIndexer implements MassIndexer {
 
+	private static final Log log = LoggerFactory.make();
+
 	private final SearchFactoryImplementor searchFactory;
 	private final SessionFactory sessionFactory;
 	private final Class<?>[] entities;
 	private final GridDialect gridDialect;
 
-	private final MassIndexer indexer;
+	private MassIndexer indexer;
+	private int threadsToLoad = 2;
+	private int batchSizeToLoad = 10;
+	private int threadForSubsequentFetching =4;
+	private MassIndexerProgressMonitor monitor;
+	private CacheMode cacheMode = CacheMode.IGNORE;
+	private boolean optimizeOnFinish = true;
+	private boolean optimizeAfterPurge = true;
+	private boolean purgeAllOnStart = true;
+	private long maximumIndexedObjects = 10;
+	private int idFetchSize = 100;
+
+	private final Set<Class<?>> rootEntities;
 
 	public OgmMassIndexer(GridDialect gridDialect, SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
 		this.gridDialect = gridDialect;
 		this.searchFactory = searchFactory;
 		this.sessionFactory = sessionFactory;
 		this.entities = entities;
-		this.indexer = new MassIndexerImpl( searchFactory, sessionFactory, entities );
+		this.rootEntities = toRootEntities( searchFactory, entities );
+		this.monitor = createMonitor( searchFactory );
 	}
 
+	private MassIndexerProgressMonitor createMonitor(SearchFactoryImplementor searchFactory) {
+		return searchFactory.isJMXEnabled() ? new IndexingProgressMonitor() : new SimpleIndexingProgressMonitor();
+	}
+
+	@Override
 	public MassIndexer threadsToLoadObjects(int numberOfThreads) {
-		return indexer.threadsToLoadObjects( numberOfThreads );
+		atLeastOneValidation( numberOfThreads );
+		this.threadsToLoad = numberOfThreads;
+		return this;
 	}
 
+	@Override
 	public MassIndexer batchSizeToLoadObjects(int batchSize) {
-		return indexer.batchSizeToLoadObjects( batchSize );
+		this.batchSizeToLoad = batchSize;
+		return this;
 	}
 
+	@Override
 	public MassIndexer threadsForSubsequentFetching(int numberOfThreads) {
-		return indexer.threadsForSubsequentFetching( numberOfThreads );
+		atLeastOneValidation( numberOfThreads );
+		this.threadForSubsequentFetching = numberOfThreads;
+		return this;
 	}
 
+	@Override
+	@Deprecated
 	public MassIndexer threadsForIndexWriter(int numberOfThreads) {
-		return indexer.threadsForIndexWriter( numberOfThreads );
+		return this;
 	}
 
+	@Override
 	public MassIndexer progressMonitor(MassIndexerProgressMonitor monitor) {
-		return indexer.progressMonitor( monitor );
+		this.monitor = monitor;
+		return this;
 	}
 
+	@Override
 	public MassIndexer cacheMode(CacheMode cacheMode) {
-		return indexer.cacheMode( cacheMode );
+		this.cacheMode = cacheMode;
+		return this;
 	}
 
+	@Override
 	public MassIndexer optimizeOnFinish(boolean optimize) {
-		return indexer.optimizeOnFinish( optimize );
+		this.optimizeOnFinish = optimize;
+		return this;
 	}
 
+	@Override
 	public MassIndexer optimizeAfterPurge(boolean optimize) {
-		return indexer.optimizeAfterPurge( optimize );
+		this.optimizeAfterPurge = optimize;
+		return this;
 	}
 
+	@Override
 	public MassIndexer purgeAllOnStart(boolean purgeAll) {
-		return indexer.purgeAllOnStart( purgeAll );
+		this.purgeAllOnStart = purgeAll;
+		return this;
 	}
 
+	@Override
 	public MassIndexer limitIndexedObjectsTo(long maximum) {
-		return indexer.limitIndexedObjectsTo( maximum );
+		this.maximumIndexedObjects = maximum;
+		return this;
 	}
 
-	public Future<?> start() {
-		return indexer.start();
-	}
-
-	public void startAndWait() throws InterruptedException {
-		indexer.startAndWait();
-	}
-
+	@Override
 	public MassIndexer idFetchSize(int idFetchSize) {
-		return indexer.idFetchSize( idFetchSize );
+		this.idFetchSize = idFetchSize;
+		return this;
+	}
+
+	@Override
+	public Future<?> start() {
+		ExecutorService executor = Executors.newFixedThreadPool( 1, "batch coordinator" );
+		try {
+			return executor.submit( createCoordinator() );
+		}
+		finally {
+			executor.shutdown();
+		}
+	}
+
+	@Override
+	public void startAndWait() throws InterruptedException {
+		BatchCoordinator coordinator = createCoordinator();
+		coordinator.run();
+		if ( Thread.currentThread().isInterrupted() ) {
+			throw new InterruptedException();
+		}
+	}
+
+	protected BatchCoordinator createCoordinator() {
+		return new BatchCoordinator( gridDialect, rootEntities, searchFactory, sessionFactory, threadsToLoad,
+				threadForSubsequentFetching, cacheMode, batchSizeToLoad, maximumIndexedObjects, optimizeOnFinish,
+				purgeAllOnStart, optimizeAfterPurge, monitor, idFetchSize );
+	}
+
+	private void atLeastOneValidation(int numberOfThreads) {
+		if ( numberOfThreads < 1 ) {
+			throw new IllegalArgumentException( "numberOfThreads must be at least 1" );
+		}
+	}
+
+	/**
+	 * From the set of classes a new set is built containing all indexed
+	 * subclasses, but removing then all subtypes of indexed entities.
+	 *
+	 * @param selection
+	 *
+	 * @return a new set of entities
+	 */
+	private static Set<Class<?>> toRootEntities(SearchFactoryImplementor searchFactoryImplementor, Class<?>... selection) {
+		Set<Class<?>> entities = new HashSet<Class<?>>();
+		//first build the "entities" set containing all indexed subtypes of "selection".
+		for ( Class<?> entityType : selection ) {
+			Set<Class<?>> targetedClasses = searchFactoryImplementor.getIndexedTypesPolymorphic(
+					new Class[] { entityType }
+			);
+			if ( targetedClasses.isEmpty() ) {
+				String msg = entityType.getName() + " is not an indexed entity or a subclass of an indexed entity";
+				throw new IllegalArgumentException( msg );
+			}
+			entities.addAll( targetedClasses );
+		}
+		Set<Class<?>> cleaned = new HashSet<Class<?>>();
+		Set<Class<?>> toRemove = new HashSet<Class<?>>();
+		//now remove all repeated types to avoid duplicate loading by polymorphic query loading
+		for ( Class<?> type : entities ) {
+			boolean typeIsOk = true;
+			for ( Class<?> existing : cleaned ) {
+				if ( existing.isAssignableFrom( type ) ) {
+					typeIsOk = false;
+					break;
+				}
+				if ( type.isAssignableFrom( existing ) ) {
+					toRemove.add( existing );
+				}
+			}
+			if ( typeIsOk ) {
+				cleaned.add( type );
+			}
+		}
+		cleaned.removeAll( toRemove );
+		log.debugf( "Targets for indexing job: %s", cleaned );
+		return cleaned;
 	}
 
 }
