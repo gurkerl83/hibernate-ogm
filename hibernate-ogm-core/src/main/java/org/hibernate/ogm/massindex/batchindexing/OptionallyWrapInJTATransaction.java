@@ -99,11 +99,11 @@ public class OptionallyWrapInJTATransaction implements Consumer {
 	}
 
 	@Override
-	public void consume(EntityKey key) {
+	public void consume(Tuple tuple) {
 		try {
 			final boolean wrapInTransaction = wrapInTransaction();
 			if ( wrapInTransaction ) {
-				consumeInTransaction( key );
+				consumeInTransaction( tuple );
 			}
 			else {
 				delegate.consume( null, null );
@@ -114,12 +114,12 @@ public class OptionallyWrapInJTATransaction implements Consumer {
 		}
 	}
 
-	private void consumeInTransaction(EntityKey key) {
+	private void consumeInTransaction(Tuple tuple) {
 		TransactionManager transactionManager = getTransactionManager();
 		try {
 			final Session session = factory.openSession();
 			transactionManager.begin();
-			delegate.consume( session, key );
+			delegate.consume( session, tuple );
 			transactionManager.commit();
 			session.close();
 		}

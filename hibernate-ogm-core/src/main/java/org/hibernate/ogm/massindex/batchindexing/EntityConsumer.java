@@ -25,6 +25,7 @@ package org.hibernate.ogm.massindex.batchindexing;
 
 import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -43,6 +44,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.jdbc.TupleAsMapResultSet;
 import org.hibernate.ogm.loader.OgmLoader;
+import org.hibernate.ogm.loader.OgmLoadingContext;
 import org.hibernate.ogm.persister.EntityKeyBuilder;
 import org.hibernate.ogm.persister.OgmEntityPersister;
 import org.hibernate.ogm.type.TypeTranslator;
@@ -211,11 +213,11 @@ public class EntityConsumer implements SessionAwareRunnable {
 	}
 
 	@Override
-	public void consume(Session upperSession, EntityKey key) {
+	public void consume(Session upperSession, Tuple tuple) {
 		Session session = openSession( upperSession );
 		try {
 			Transaction transaction = beginTransaction( session );
-			index( session, entity( session, key ) );
+			index( session, entity( session, tuple ) );
 			transaction.commit();
 		}
 		catch ( Throwable e ) {
@@ -228,19 +230,15 @@ public class EntityConsumer implements SessionAwareRunnable {
 		}
 	}
 
-	private Object entity(Session session, EntityKey key) {
-		
+	private Object entity(Session session, Tuple tuple) {
 		OgmEntityPersister persister = (OgmEntityPersister) ((SessionFactoryImplementor) sessionFactory).getEntityPersister( indexedType.getName() );
 		OgmLoader loader = new OgmLoader( new OgmEntityPersister[] { persister } );
-		IdentifierProperty property = persister.getEntityMetamodel().getIdentifierProperty();
-		Type type = property.getType();
-		String name = type.getName();
-		for ( int i = 0; i < key.getColumnNames().length; i++ ) {
-			String column = key.getColumnNames()[i];
-			Object value = key.getColumnValues()[i];
-		}
-		Serializable id = null;
-		return loader.load( id, null, (SessionImplementor) session );
+		OgmLoadingContext ogmLoadingContext = new OgmLoadingContext();
+		List<Tuple> tuples = new ArrayList<Tuple>();
+		tuples.add( tuple );
+		ogmLoadingContext.setTuples(tuples);
+		List<Object> entities = loader.loadEntities( (SessionImplementor) session, LockOptions.NONE, ogmLoadingContext );
+		return entities.get( 0 );
 	}
 
 }

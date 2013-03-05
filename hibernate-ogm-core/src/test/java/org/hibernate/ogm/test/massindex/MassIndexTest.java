@@ -53,7 +53,10 @@ public class MassIndexTest extends OgmTestCase {
 		}
 		{
 			FullTextSession session = Search.getFullTextSession( openSession() );
-			session.createIndexer( Insurance.class ).purgeAllOnStart( true ).startAndWait();
+			session
+				.createIndexer( Insurance.class )
+				.purgeAllOnStart( true )
+				.startAndWait();
 		}
 		{
 			Session session = openSession();

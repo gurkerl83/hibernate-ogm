@@ -46,7 +46,7 @@ public class OgmMassIndexerInitiator implements BasicServiceInitiator<MassIndexe
 		String factoryClassName = (String) configurationValues.get( MassIndexerFactoryIntegrator.MASS_INDEXER_FACTORY_CLASSNAME );
 		if (factoryClassName == null) {
 			DatastoreServices services = registry.getService( DatastoreServices.class );
-			TypeTranslator translator = registry.getService( TypeTranslator.class )
+			TypeTranslator translator = registry.getService( TypeTranslator.class );
 			return new OgmMassIndexerFactory( services.getGridDialect(), translator );
 		} else {
 			return new MassIndexerFactoryIntegrator().initiateService( configurationValues, registry );

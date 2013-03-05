@@ -20,13 +20,13 @@
  */
 package org.hibernate.ogm.massindex.batchindexing;
 
-import org.hibernate.ogm.grid.EntityKey;
+import org.hibernate.ogm.datastore.spi.Tuple;
 
 /**
  * @author Davide D'Alto <davide@hibernate.org>
  */
 public interface Consumer {
 
-	void consume(EntityKey tuple);
+	void consume(Tuple tuple);
 
 }

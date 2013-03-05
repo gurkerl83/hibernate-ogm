@@ -29,6 +29,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.TimeZone;
 
 import org.hibernate.HibernateException;
@@ -157,10 +158,11 @@ public class HashMapDialect implements GridDialect {
 	@Override
 	public void forEachEntityKey(Consumer consumer, String... tables) {
 		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
-		for ( EntityKey entityKey : entityMap.keySet() ) {
+		for ( Entry<EntityKey, Map<String, Object>> entries : entityMap.entrySet() ) {
 			for ( String table : tables ) {
-				if ( entityKey.getTable().equals( table ) ) {
-					consumer.consume( entityKey );
+				if ( entries.getKey().getTable().equals( table ) ) {
+					Map<String, Object> map = entityMap.get( entries.getKey() );
+					consumer.consume( new Tuple( new MapTupleSnapshot( map ) ) );
 				}
 			}
 		}

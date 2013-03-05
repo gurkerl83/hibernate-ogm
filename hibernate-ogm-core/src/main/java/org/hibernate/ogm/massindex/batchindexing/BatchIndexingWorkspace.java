@@ -134,16 +134,7 @@ public class BatchIndexingWorkspace implements Runnable {
 			final String table = table( sessionFactory, indexedType );
 			final SessionAwareRunnable consumer = new EntityConsumer( translator, indexedType, monitor, sessionFactory, producerEndSignal, searchFactory, cacheMode, batchBackend, errorHandler );
 			gridDialect.forEachEntityKey( new OptionallyWrapInJTATransaction( sessionFactory, errorHandler, consumer ), table );
-
-			try {
-				producerEndSignal.await(); //await for all work being sent to the backend
-				log.debugf( "All work for type %s has been produced", indexedType.getName() );
-			}
-			catch ( InterruptedException e ) {
-				//restore interruption signal:
-				Thread.currentThread().interrupt();
-				throw new SearchException( "Interrupted on batch Indexing; index will be left in unknown state!", e );
-			}
+//			extracted();
 		}
 		catch ( RuntimeException re ) {
 			//being this an async thread we want to make sure everything is somehow reported
@@ -151,6 +142,18 @@ public class BatchIndexingWorkspace implements Runnable {
 		}
 		finally {
 			endAllSignal.countDown();
+		}
+	}
+
+	private void extracted() {
+		try {
+			producerEndSignal.await(); //await for all work being sent to the backend
+			log.debugf( "All work for type %s has been produced", indexedType.getName() );
+		}
+		catch ( InterruptedException e ) {
+			//restore interruption signal:
+			Thread.currentThread().interrupt();
+			throw new SearchException( "Interrupted on batch Indexing; index will be left in unknown state!", e );
 		}
 	}
 }

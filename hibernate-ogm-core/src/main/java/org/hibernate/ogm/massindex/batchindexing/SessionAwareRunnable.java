@@ -21,13 +21,13 @@
 package org.hibernate.ogm.massindex.batchindexing;
 
 import org.hibernate.Session;
-import org.hibernate.ogm.grid.EntityKey;
+import org.hibernate.ogm.datastore.spi.Tuple;
 
 /**
  * @author Emmanuel Bernard
  */
 public interface SessionAwareRunnable {
 
-	void consume(Session upperSession, EntityKey key);
+	void consume(Session upperSession, Tuple tuple);
 
 }
