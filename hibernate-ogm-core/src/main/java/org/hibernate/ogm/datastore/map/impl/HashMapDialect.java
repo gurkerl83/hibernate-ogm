@@ -50,6 +50,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -154,212 +155,15 @@ public class HashMapDialect implements GridDialect {
 	}
 
 	@Override
-	public long countEntities(String indexedType) {
+	public void forEachEntityKey(Consumer consumer, String... tables) {
 		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
-		return entityMap.size();
-	}
-
-	@Override
-	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
-		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
-		return new ScrollableResults() {
-
-			@Override
-			public boolean setRowNumber(int rowNumber) throws HibernateException {
-				return false;
+		for ( EntityKey entityKey : entityMap.keySet() ) {
+			for ( String table : tables ) {
+				if ( entityKey.getTable().equals( table ) ) {
+					consumer.consume( entityKey );
+				}
 			}
-
-			@Override
-			public boolean scroll(int i) throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public boolean previous() throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public boolean next() throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public boolean last() throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public boolean isLast() throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public boolean isFirst() throws HibernateException {
-				return false;
-			}
-
-			@Override
-			public Type getType(int i) {
-				return null;
-			}
-
-			@Override
-			public TimeZone getTimeZone(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String getText(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public String getString(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Short getShort(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public int getRowNumber() throws HibernateException {
-				// TODO Auto-generated method stub
-				return 0;
-			}
-
-			@Override
-			public Long getLong(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Locale getLocale(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Integer getInteger(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Float getFloat(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Double getDouble(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Date getDate(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Clob getClob(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Character getCharacter(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Calendar getCalendar(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Byte getByte(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Boolean getBoolean(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Blob getBlob(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public byte[] getBinary(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public BigInteger getBigInteger(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public BigDecimal getBigDecimal(int col) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Object get(int i) throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public Object[] get() throws HibernateException {
-				// TODO Auto-generated method stub
-				return null;
-			}
-
-			@Override
-			public boolean first() throws HibernateException {
-				// TODO Auto-generated method stub
-				return false;
-			}
-
-			@Override
-			public void close() throws HibernateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void beforeFirst() throws HibernateException {
-				// TODO Auto-generated method stub
-
-			}
-
-			@Override
-			public void afterLast() throws HibernateException {
-				// TODO Auto-generated method stub
-
-			}
-		};
+		}
 	}
 
 }

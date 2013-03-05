@@ -30,6 +30,7 @@ import java.util.concurrent.ExecutorService;
 import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
 import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.type.TypeTranslator;
 import org.hibernate.ogm.util.impl.Log;
 import org.hibernate.ogm.util.impl.LoggerFactory;
 import org.hibernate.search.backend.PurgeAllLuceneWork;
@@ -65,9 +66,10 @@ public class BatchCoordinator implements Runnable {
 	private final ErrorHandler errorHandler;
 	private final int idFetchSize;
 
-	private GridDialect gridDialect;
+	private final GridDialect gridDialect;
+	private final TypeTranslator translator;
 
-	public BatchCoordinator(GridDialect gridDialect, Set<Class<?>> rootEntities,
+	public BatchCoordinator(GridDialect gridDialect, TypeTranslator translator, Set<Class<?>> rootEntities,
 							SearchFactoryImplementor searchFactoryImplementor,
 							SessionFactory sessionFactory,
 							int objectLoadingThreads,
@@ -81,6 +83,7 @@ public class BatchCoordinator implements Runnable {
 							MassIndexerProgressMonitor monitor,
 							int idFetchSize) {
 		this.gridDialect = gridDialect;
+		this.translator = translator;
 		this.idFetchSize = idFetchSize;
 		this.rootEntities = rootEntities.toArray( new Class<?>[rootEntities.size()] );
 		this.searchFactoryImplementor = searchFactoryImplementor;
@@ -133,7 +136,7 @@ public class BatchCoordinator implements Runnable {
 		for ( Class<?> type : rootEntities ) {
 			executor.execute(
 					new BatchIndexingWorkspace(
-							gridDialect, searchFactoryImplementor, sessionFactory, type,
+							gridDialect, translator, searchFactoryImplementor, sessionFactory, type,
 							objectLoadingThreads, collectionLoadingThreads,
 							cacheMode, objectLoadingBatchSize, endAllSignal,
 							monitor, backend, objectsLimit, idFetchSize

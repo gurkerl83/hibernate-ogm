@@ -24,6 +24,7 @@ import java.util.Properties;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.type.TypeTranslator;
 import org.hibernate.search.MassIndexer;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
 import org.hibernate.search.spi.MassIndexerFactory;
@@ -34,9 +35,11 @@ import org.hibernate.search.spi.MassIndexerFactory;
 public class OgmMassIndexerFactory implements MassIndexerFactory {
 
 	private final GridDialect gridDialect;
+	private final TypeTranslator translator;
 
-	public OgmMassIndexerFactory(GridDialect gridDialect) {
+	public OgmMassIndexerFactory(GridDialect gridDialect, TypeTranslator translator) {
 		this.gridDialect = gridDialect;
+		this.translator = translator;
 	}
 
 	@Override
@@ -46,7 +49,7 @@ public class OgmMassIndexerFactory implements MassIndexerFactory {
 	@Override
 	public MassIndexer createMassIndexer(SearchFactoryImplementor searchFactory, SessionFactory sessionFactory,
 			Class<?>... entities) {
-		return new OgmMassIndexer(gridDialect, searchFactory, sessionFactory, entities);
+		return new OgmMassIndexer(gridDialect, translator, searchFactory, sessionFactory, entities);
 	}
 
 }

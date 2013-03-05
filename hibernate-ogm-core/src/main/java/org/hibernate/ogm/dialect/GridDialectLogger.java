@@ -31,6 +31,7 @@ import org.hibernate.ogm.datastore.spi.TupleContext;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.ogm.util.impl.CoreLogCategories;
 import org.hibernate.ogm.util.impl.Log;
@@ -152,16 +153,8 @@ public class GridDialectLogger implements GridDialect {
 	}
 
 	@Override
-	public long countEntities(String indexedType) {
-		long result = gridDialect.countEntities( indexedType );
-		log.tracef( "Number of entities: %1$s", result );
-		return result;
-	}
-
-	@Override
-	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
-		log.tracef( "Loading entities");
-		return gridDialect.loadEntities( indexedType, idFetchSize );
+	public void forEachEntityKey(Consumer consumer, String... tables) {
+		 gridDialect.forEachEntityKey( consumer, tables );
 	}
 
 }

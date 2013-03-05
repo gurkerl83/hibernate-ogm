@@ -20,13 +20,13 @@
  */
 package org.hibernate.ogm.test.massindex;
 
+import static org.fest.assertions.Assertions.assertThat;
+
 import java.util.List;
 
-import static org.fest.assertions.Assertions.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
-import org.hibernate.ogm.datastore.map.impl.HashMapDialect;
 import org.hibernate.ogm.datastore.map.impl.MapDatastoreProvider;
 import org.hibernate.ogm.test.hsearch.Insurance;
 import org.hibernate.ogm.test.simpleentity.OgmTestCase;
@@ -60,7 +60,8 @@ public class MassIndexTest extends OgmTestCase {
 			Transaction transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
 			List<Insurance> list = session.createQuery( "FROM Insurance" ).list();
-			assertThat( list.get( 0 ).getName() ).equals( "Insurance Corporation" );
+			assertThat( list ).hasSize( 1 );
+			assertThat( list.get( 0 ).getName() ).isEqualTo( "Insurance Corporation" );
 			transaction.commit();
 			session.clear();
 			session.close();

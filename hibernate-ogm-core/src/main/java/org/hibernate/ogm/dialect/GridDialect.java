@@ -36,6 +36,7 @@ import org.hibernate.ogm.datastore.spi.Tuple;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
 
@@ -110,15 +111,8 @@ public interface GridDialect extends Service {
 	GridType overrideType(Type type);
 
 	/**
-	 * @param idNameOfIndexedType
-	 * @return
+	 * @param consumer
+	 * @param tableName
 	 */
-	long countEntities(String idNameOfIndexedType);
-
-	/**
-	 * @param indexedType
-	 * @param idFetchSize
-	 * @return
-	 */
-	ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize);
+	void forEachEntityKey(Consumer consumer, String... tables);
 }

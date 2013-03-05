@@ -22,18 +22,12 @@ package org.hibernate.ogm.massindex;
 
 import java.util.Map;
 
-import org.hibernate.cfg.Configuration;
-import org.hibernate.engine.spi.SessionFactoryImplementor;
-import org.hibernate.integrator.spi.ServiceContributingIntegrator;
-import org.hibernate.metamodel.source.MetadataImplementor;
 import org.hibernate.ogm.datastore.impl.DatastoreServices;
-import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.type.TypeTranslator;
 import org.hibernate.search.hcore.impl.MassIndexerFactoryIntegrator;
 import org.hibernate.search.spi.MassIndexerFactory;
-import org.hibernate.service.ServiceRegistryBuilder;
 import org.hibernate.service.spi.BasicServiceInitiator;
 import org.hibernate.service.spi.ServiceRegistryImplementor;
-import org.hibernate.service.spi.SessionFactoryServiceRegistry;
 
 /**
  * @author Davide D'Alto <davide@hibernate.org>
@@ -52,7 +46,8 @@ public class OgmMassIndexerInitiator implements BasicServiceInitiator<MassIndexe
 		String factoryClassName = (String) configurationValues.get( MassIndexerFactoryIntegrator.MASS_INDEXER_FACTORY_CLASSNAME );
 		if (factoryClassName == null) {
 			DatastoreServices services = registry.getService( DatastoreServices.class );
-			return new OgmMassIndexerFactory( services.getGridDialect() );
+			TypeTranslator translator = registry.getService( TypeTranslator.class )
+			return new OgmMassIndexerFactory( services.getGridDialect(), translator );
 		} else {
 			return new MassIndexerFactoryIntegrator().initiateService( configurationValues, registry );
 		}

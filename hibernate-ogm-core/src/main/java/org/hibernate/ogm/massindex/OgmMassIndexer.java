@@ -30,6 +30,7 @@ import org.hibernate.SessionFactory;
 import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.massindex.batchindexing.BatchCoordinator;
 import org.hibernate.ogm.massindex.batchindexing.Executors;
+import org.hibernate.ogm.type.TypeTranslator;
 import org.hibernate.ogm.util.impl.Log;
 import org.hibernate.ogm.util.impl.LoggerFactory;
 import org.hibernate.search.MassIndexer;
@@ -49,6 +50,7 @@ public class OgmMassIndexer implements MassIndexer {
 	private final SessionFactory sessionFactory;
 	private final Class<?>[] entities;
 	private final GridDialect gridDialect;
+	private final TypeTranslator translator;
 
 	private MassIndexer indexer;
 	private int threadsToLoad = 2;
@@ -64,8 +66,9 @@ public class OgmMassIndexer implements MassIndexer {
 
 	private final Set<Class<?>> rootEntities;
 
-	public OgmMassIndexer(GridDialect gridDialect, SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
+	public OgmMassIndexer(GridDialect gridDialect, TypeTranslator translator, SearchFactoryImplementor searchFactory, SessionFactory sessionFactory, Class<?>... entities) {
 		this.gridDialect = gridDialect;
+		this.translator = translator;
 		this.searchFactory = searchFactory;
 		this.sessionFactory = sessionFactory;
 		this.entities = entities;
@@ -166,7 +169,7 @@ public class OgmMassIndexer implements MassIndexer {
 	}
 
 	protected BatchCoordinator createCoordinator() {
-		return new BatchCoordinator( gridDialect, rootEntities, searchFactory, sessionFactory, threadsToLoad,
+		return new BatchCoordinator( gridDialect, translator, rootEntities, searchFactory, sessionFactory, threadsToLoad,
 				threadForSubsequentFetching, cacheMode, batchSizeToLoad, maximumIndexedObjects, optimizeOnFinish,
 				purgeAllOnStart, optimizeAfterPurge, monitor, idFetchSize );
 	}

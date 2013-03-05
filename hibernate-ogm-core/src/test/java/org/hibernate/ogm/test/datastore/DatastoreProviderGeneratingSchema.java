@@ -38,6 +38,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -151,15 +152,9 @@ public class DatastoreProviderGeneratingSchema implements DatastoreProvider, Sta
 		}
 
 		@Override
-		public long countEntities(String indexedType) {
+		public void forEachEntityKey(Consumer consumer, String... tables) {
 			// TODO Auto-generated method stub
-			return 0;
-		}
-
-		@Override
-		public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
-			// TODO Auto-generated method stub
-			return null;
+			
 		}
 	}
 }

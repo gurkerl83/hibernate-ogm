@@ -24,6 +24,8 @@ import javax.transaction.Status;
 import javax.transaction.SystemException;
 import javax.transaction.TransactionManager;
 
+import org.hibernate.ogm.datastore.spi.Tuple;
+import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.search.exception.ErrorHandler;
 import org.hibernate.search.util.logging.impl.Log;
 
@@ -44,13 +46,12 @@ import org.hibernate.service.jta.platform.spi.JtaPlatform;
  *
  * @author Emmanuel Bernard
  */
-public class OptionallyWrapInJTATransaction implements Runnable {
+public class OptionallyWrapInJTATransaction implements Consumer {
 
 	private static final Log log = LoggerFactory.make();
 
 	private final SessionFactoryImplementor factory;
-	private final SessionAwareRunnable sessionAwareRunnable;
-	private final StatelessSessionAwareRunnable statelessSessionAwareRunnable;
+	private final SessionAwareRunnable delegate;
 	private final ErrorHandler errorHandler;
 
 	public OptionallyWrapInJTATransaction(SessionFactory factory, ErrorHandler errorHandler, SessionAwareRunnable sessionAwareRunnable) {
@@ -62,69 +63,8 @@ public class OptionallyWrapInJTATransaction implements Runnable {
 		//TODO get SessionFactoryImplementor it from the SearchFactory as we might get a hold of the SFI at startup time
 		// if that's the case, SearchFactory should expose something like T unwrap(Class<T> clazz);
 		this.factory = (SessionFactoryImplementor) factory;
-		this.sessionAwareRunnable = sessionAwareRunnable;
-		this.statelessSessionAwareRunnable = null;
+		this.delegate = sessionAwareRunnable;
 		this.errorHandler = errorHandler;
-	}
-
-	public void run() {
-		try {
-			final boolean wrapInTransaction = wrapInTransaction();
-			if ( wrapInTransaction ) {
-				TransactionManager transactionManager = getTransactionManager();
-				try {
-					final Session session;
-					final StatelessSession statelessSession;
-					if ( sessionAwareRunnable != null ) {
-						session = factory.openSession();
-						statelessSession = null;
-					}
-					else {
-						session = null;
-						statelessSession = factory.openStatelessSession();
-					}
-	
-					transactionManager.begin();
-	
-					if ( sessionAwareRunnable != null ) {
-						sessionAwareRunnable.run( session );
-					}
-					else {
-						statelessSessionAwareRunnable.run( statelessSession );
-					}
-	
-					transactionManager.commit();
-	
-					if ( sessionAwareRunnable != null ) {
-						session.close();
-					}
-					else {
-						statelessSession.close();
-					}
-				}
-				catch (Throwable e) {
-					errorHandler.handleException( log.massIndexerUnexpectedErrorMessage() , e);
-					try {
-						transactionManager.rollback();
-					}
-					catch ( SystemException e1 ) {
-						// we already have an exception, don't propagate this one
-						log.errorRollingBackTransaction( e.getMessage(), e1 );
-					}
-				}
-			}
-			else {
-				if ( sessionAwareRunnable != null ) {
-					sessionAwareRunnable.run( null );
-				}
-				else {
-					statelessSessionAwareRunnable.run( null );
-				}
-			}
-		}
-		catch (Throwable e) {
-			errorHandler.handleException( log.massIndexerUnexpectedErrorMessage() , e);
-		}
 	}
 
 	private TransactionManager getTransactionManager() {
@@ -156,5 +96,46 @@ public class OptionallyWrapInJTATransaction implements Runnable {
 		}
 		log.trace( "Transaction in progress, no needs to start a JTA transaction" );
 		return false;
+	}
+
+	@Override
+	public void consume(EntityKey key) {
+		try {
+			final boolean wrapInTransaction = wrapInTransaction();
+			if ( wrapInTransaction ) {
+				consumeInTransaction( key );
+			}
+			else {
+				delegate.consume( null, null );
+			}
+		}
+		catch (Throwable e) {
+			errorHandler.handleException( log.massIndexerUnexpectedErrorMessage() , e);
+		}
+	}
+
+	private void consumeInTransaction(EntityKey key) {
+		TransactionManager transactionManager = getTransactionManager();
+		try {
+			final Session session = factory.openSession();
+			transactionManager.begin();
+			delegate.consume( session, key );
+			transactionManager.commit();
+			session.close();
+		}
+		catch (Throwable e) {
+			errorHandler.handleException( log.massIndexerUnexpectedErrorMessage() , e);
+			rollback( transactionManager, e );
+		}
+	}
+
+	private void rollback(TransactionManager transactionManager, Throwable e) {
+		try {
+			transactionManager.rollback();
+		}
+		catch ( SystemException e1 ) {
+			// we already have an exception, don't propagate this one
+			log.errorRollingBackTransaction( e.getMessage(), e1 );
+		}
 	}
 }
