@@ -22,15 +22,17 @@ package org.hibernate.ogm.test.massindex;
 
 import static org.fest.assertions.Assertions.assertThat;
 
+import java.util.Arrays;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+
 import org.hibernate.Session;
-import org.hibernate.Transaction;
 import org.hibernate.ogm.test.hsearch.Insurance;
 import org.hibernate.ogm.test.id.NewsID;
 import org.hibernate.ogm.test.massindex.model.IndexedLabel;
 import org.hibernate.ogm.test.massindex.model.IndexedNews;
-import org.hibernate.ogm.test.simpleentity.OgmTestCase;
+import org.hibernate.ogm.test.utils.jpa.JpaTestCase;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
 import org.junit.Test;
@@ -38,74 +40,64 @@ import org.junit.Test;
 /**
  * @author Davide D'Alto <davide@hibernate.org>
  */
-public class MassIndexTest extends OgmTestCase {
+public class SnippetTest extends JpaTestCase {
 
 	@Test
-	public void testSimpleEntityMassIndexing() throws Exception {
+	public void testEntityWithAssociationMassIndexing() throws Exception {
 		{
-			Session session = openSession();
-			Transaction transaction = session.beginTransaction();
-			Insurance insurance = new Insurance();
-			insurance.setName( "Insurance Corporation" );
-			session.persist( insurance );
-			transaction.commit();
-			session.clear();
-			session.close();
-		}
-		{
-			purgeAll( Insurance.class );
-			startAndWaitMassIndexing( Insurance.class );
-		}
-		{
-			Session session = openSession();
-			Transaction transaction = session.beginTransaction();
-			@SuppressWarnings("unchecked")
-			List<Insurance> list = session.createQuery( "FROM Insurance" ).list();
-			assertThat( list ).hasSize( 1 );
-			assertThat( list.get( 0 ).getName() ).isEqualTo( "Insurance Corporation" );
-			transaction.commit();
-			session.clear();
-			session.close();
-		}
-	}
-
-	@Test
-	public void testEntityWithCompositeIdMassIndexing() throws Exception {
-		{
-			Session session = openSession();
-			Transaction transaction = session.beginTransaction();
+			List<IndexedLabel> labes = Arrays.asList( new IndexedLabel( "massindex" ), new IndexedLabel( "test" ) );
 			IndexedNews news = new IndexedNews( new NewsID( "title", "author" ), "content" );
-			session.persist( news );
-			transaction.commit();
-			session.clear();
-			session.close();
+			boolean operationSuccessful = false;
+			try {
+				getTransactionManager().begin();
+				EntityManager em = createEntityManager();
+				news.setLabels( labes );
+				em.persist( news );
+				operationSuccessful = true;
+			}
+			finally {
+				commitOrRollback( operationSuccessful );
+			}
 		}
 		{
 			purgeAll( IndexedNews.class );
+			purgeAll( IndexedLabel.class );
 			startAndWaitMassIndexing( IndexedNews.class );
 		}
 		{
-			Session session = openSession();
-			Transaction transaction = session.beginTransaction();
-			@SuppressWarnings("unchecked")
-			List<IndexedNews> list = session.createQuery( "FROM " + IndexedNews.class.getSimpleName() ).list();
-			assertThat( list ).hasSize( 1 );
-			assertThat( list.get( 0 ).getContent() ).isEqualTo( "content" );
-			assertThat( list.get( 0 ).getNewsId().getTitle() ).isEqualTo( "title" );
-			assertThat( list.get( 0 ).getNewsId().getAuthor() ).isEqualTo( "author" );
-			transaction.commit();
-			session.clear();
-			session.close();
+			boolean operationSuccessful = false;
+			try {
+				getTransactionManager().begin();
+				Session session = createSession();
+				@SuppressWarnings("unchecked")
+				List<IndexedNews> list = session.createQuery( "FROM " + IndexedNews.class.getSimpleName() ).list();
+				assertThat( list ).hasSize( 1 );
+				List<IndexedLabel> labels = list.get( 0 ).getLabels();
+				assertThat( labels ).hasSize( 2 );
+				assertThat( labels ).contains( new IndexedLabel( "massindex" ), new IndexedLabel( "test" ) );
+				operationSuccessful = true;
+			}
+			finally {
+				commitOrRollback( operationSuccessful );
+			}
 		}
 	}
 
+	private EntityManager createEntityManager() {
+		return getFactory().createEntityManager();
+	}
+
 	private void startAndWaitMassIndexing(Class<?> entityType) throws InterruptedException {
-		FullTextSession session = Search.getFullTextSession( openSession() );
+		FullTextSession session = Search.getFullTextSession( createSession() );
 		session.createIndexer( entityType ).purgeAllOnStart( true ).startAndWait();
 	}
 
+	private Session createSession() {
+		return (Session) createEntityManager().getDelegate();
+	}
+
 	private void purgeAll(Class<?> entityType) {
-		FullTextSession session = Search.getFullTextSession( openSession() );
+		FullTextSession session = Search.getFullTextSession( createSession() );
 		session.purgeAll( entityType );
 		session.flushToIndexes();
 		@SuppressWarnings("unchecked")
@@ -114,7 +106,7 @@ public class MassIndexTest extends OgmTestCase {
 	}
 
 	@Override
-	protected Class<?>[] getAnnotatedClasses() {
+	public Class<?>[] getEntities() {
 		return new Class<?>[] { Insurance.class, IndexedNews.class, IndexedLabel.class };
 	}
 }

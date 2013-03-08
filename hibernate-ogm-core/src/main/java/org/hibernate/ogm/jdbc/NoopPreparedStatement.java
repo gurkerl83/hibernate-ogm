@@ -53,7 +53,7 @@ public class NoopPreparedStatement extends NoopStatement implements PreparedStat
 
 	@Override
 	public ResultSet executeQuery() throws SQLException {
-		return null;
+		return new TupleAsMapResultSet();
 	}
 
 	@Override
@@ -123,8 +123,6 @@ public class NoopPreparedStatement extends NoopStatement implements PreparedStat
 
 	@Override
 	public void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
