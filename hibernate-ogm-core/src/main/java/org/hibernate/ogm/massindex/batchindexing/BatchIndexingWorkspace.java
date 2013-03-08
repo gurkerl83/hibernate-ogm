@@ -23,10 +23,8 @@
  */
 package org.hibernate.ogm.massindex.batchindexing;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ThreadPoolExecutor;
 
 import org.hibernate.CacheMode;
 import org.hibernate.SessionFactory;
@@ -34,7 +32,6 @@ import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.persister.OgmEntityPersister;
 import org.hibernate.ogm.type.TypeTranslator;
-import org.hibernate.search.SearchException;
 import org.hibernate.search.backend.impl.batch.BatchBackend;
 import org.hibernate.search.batchindexing.MassIndexerProgressMonitor;
 import org.hibernate.search.engine.spi.SearchFactoryImplementor;
@@ -133,8 +130,7 @@ public class BatchIndexingWorkspace implements Runnable {
 		try {
 			final String table = table( sessionFactory, indexedType );
 			final SessionAwareRunnable consumer = new EntityConsumer( translator, indexedType, monitor, sessionFactory, producerEndSignal, searchFactory, cacheMode, batchBackend, errorHandler );
-			gridDialect.forEachEntityKey( new OptionallyWrapInJTATransaction( sessionFactory, errorHandler, consumer ), table );
-//			extracted();
+			gridDialect.forEachTuple( new OptionallyWrapInJTATransaction( sessionFactory, errorHandler, consumer ), table );
 		}
 		catch ( RuntimeException re ) {
 			//being this an async thread we want to make sure everything is somehow reported
@@ -142,18 +138,6 @@ public class BatchIndexingWorkspace implements Runnable {
 		}
 		finally {
 			endAllSignal.countDown();
-		}
-	}
-
-	private void extracted() {
-		try {
-			producerEndSignal.await(); //await for all work being sent to the backend
-			log.debugf( "All work for type %s has been produced", indexedType.getName() );
-		}
-		catch ( InterruptedException e ) {
-			//restore interruption signal:
-			Thread.currentThread().interrupt();
-			throw new SearchException( "Interrupted on batch Indexing; index will be left in unknown state!", e );
 		}
 	}
 }

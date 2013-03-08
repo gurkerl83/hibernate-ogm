@@ -20,6 +20,9 @@
  */
 package org.hibernate.ogm.test.utils;
 
+import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ASSOCIATION_STORE;
+import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ENTITY_STORE;
+
 import java.util.Map;
 
 import net.sf.ehcache.Cache;
@@ -27,11 +30,11 @@ import net.sf.ehcache.Cache;
 import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.ogm.datastore.ehcache.impl.EhcacheDatastoreProvider;
+import org.hibernate.ogm.datastore.map.impl.HashMapDialect;
 import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.dialect.ehcache.EhcacheDialect;
 import org.hibernate.ogm.grid.EntityKey;
-
-import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ASSOCIATION_STORE;
-import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ENTITY_STORE;
 
 /**
  * @author Alex Snaps
@@ -90,5 +93,10 @@ public class EhcacheTestHelper implements TestableGridDialect {
 	@Override
 	public Map<String, String> getEnvironmentProperties() {
 		return null;
+	}
+
+	@Override
+	public GridDialect getGridDialect(SessionFactory sessionFactory) {
+		return new EhcacheDialect( getProvider( sessionFactory ) );
 	}
 }

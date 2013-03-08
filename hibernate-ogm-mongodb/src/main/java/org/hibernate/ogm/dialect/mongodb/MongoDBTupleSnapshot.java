@@ -129,7 +129,4 @@ public class MongoDBTupleSnapshot implements TupleSnapshot {
 		return this.dbObject.keySet().isEmpty();
 	}
 
-	public boolean columnInIdField(String column) {
-		return (this.columnNames == null) ? false : this.columnNames.contains( column );
-	}
 }

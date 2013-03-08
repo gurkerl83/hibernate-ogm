@@ -152,7 +152,7 @@ public class DatastoreProviderGeneratingSchema implements DatastoreProvider, Sta
 		}
 
 		@Override
-		public void forEachEntityKey(Consumer consumer, String... tables) {
+		public void forEachTuple(Consumer consumer, String... tables) {
 			// TODO Auto-generated method stub
 			
 		}

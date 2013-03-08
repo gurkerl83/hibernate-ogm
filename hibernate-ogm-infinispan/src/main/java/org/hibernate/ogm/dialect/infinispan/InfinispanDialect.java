@@ -25,6 +25,7 @@ import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ENTITY_STORE
 import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.IDENTIFIER_STORE;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hibernate.LockMode;
 import org.hibernate.ScrollableResults;
@@ -35,6 +36,7 @@ import org.hibernate.dialect.lock.PessimisticForceIncrementLockingStrategy;
 import org.hibernate.id.IntegralDataTypeHolder;
 import org.hibernate.ogm.datastore.impl.EmptyTupleSnapshot;
 import org.hibernate.ogm.datastore.impl.MapHelpers;
+import org.hibernate.ogm.datastore.impl.MapTupleSnapshot;
 import org.hibernate.ogm.datastore.infinispan.impl.InfinispanDatastoreProvider;
 import org.hibernate.ogm.datastore.map.impl.MapAssociationSnapshot;
 import org.hibernate.ogm.datastore.spi.Association;
@@ -45,6 +47,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -202,15 +205,16 @@ public class InfinispanDialect implements GridDialect {
 	}
 
 	@Override
-	public long countEntities(String idNameOfIndexedType) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public void forEachTuple(Consumer consumer, String... tables) {
+		Map<EntityKey, Map<String, Object>> cache = provider.getCache(ENTITY_STORE);
+		for ( Entry<EntityKey, Map<String, Object>> entry : cache.entrySet() ) {
+			for ( String table : tables ) {
+				if ( entry.getKey().getTable().equals( table ) ) {
+					consumer.consume( getTuple( entry.getKey(), null ) );
+				}
+			}
+		}
 	}
 
 }

@@ -20,6 +20,9 @@
  */
 package org.hibernate.ogm.dialect.mongodb;
 
+import static org.hibernate.ogm.dialect.mongodb.MongoHelpers.addEmptyAssociationField;
+import static org.hibernate.ogm.dialect.mongodb.MongoHelpers.isEmbeddedInEntity;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.regex.Pattern;
@@ -44,20 +47,18 @@ import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
 import org.hibernate.ogm.logging.mongodb.impl.Log;
 import org.hibernate.ogm.logging.mongodb.impl.LoggerFactory;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
+import org.hibernate.ogm.type.ByteStringType;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.ogm.type.StringCalendarDateType;
 import org.hibernate.persister.entity.Lockable;
-import org.hibernate.ogm.type.ByteStringType;
 import org.hibernate.type.StandardBasicTypes;
+import org.hibernate.type.Type;
 
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.DBObject;
-import org.hibernate.type.Type;
-
-import static org.hibernate.ogm.dialect.mongodb.MongoHelpers.addEmptyAssociationField;
-import static org.hibernate.ogm.dialect.mongodb.MongoHelpers.isEmbeddedInEntity;
 
 /**
  * Each Tuple entry is stored as a property in a MongoDB document.
@@ -223,9 +224,7 @@ public class MongoDBDialect implements GridDialect {
 		BasicDBObject updater = new BasicDBObject();
 		for ( TupleOperation operation : tuple.getOperations() ) {
 			String column = operation.getColumn();
-			if ( !column.equals( ID_FIELDNAME ) && !column.endsWith( PROPERTY_SEPARATOR + ID_FIELDNAME ) && !snapshot.columnInIdField(
-					column
-			) ) {
+			if ( !column.equals( ID_FIELDNAME ) && !column.endsWith( PROPERTY_SEPARATOR + ID_FIELDNAME ) ) {
 				switch ( operation.getType() ) {
 				case PUT_NULL:
 				case PUT:
@@ -474,4 +473,16 @@ public class MongoDBDialect implements GridDialect {
 		}
 		return null; // all other types handled as in hibernate-ogm-core
 	}
+
+	@Override
+	public void forEachTuple(Consumer consumer, String... tables) {
+		DB db = provider.getDatabase();
+		for ( String table : tables ) {
+			DBCollection collection = db.getCollection( table );
+			for ( DBObject dbObject : collection.find() ) {
+				consumer.consume( new Tuple( new MongoDBTupleSnapshot( dbObject, (RowKey) null ) ) );
+			}
+		}
+	}
+
 }

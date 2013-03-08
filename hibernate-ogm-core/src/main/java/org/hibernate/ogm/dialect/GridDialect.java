@@ -114,5 +114,5 @@ public interface GridDialect extends Service {
 	 * @param consumer
 	 * @param tableName
 	 */
-	void forEachEntityKey(Consumer consumer, String... tables);
+	void forEachTuple(Consumer consumer, String... tables);
 }

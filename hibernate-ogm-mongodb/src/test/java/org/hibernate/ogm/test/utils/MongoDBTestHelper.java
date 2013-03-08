@@ -32,6 +32,7 @@ import org.hibernate.ogm.datastore.mongodb.AssociationStorage;
 import org.hibernate.ogm.datastore.mongodb.Environment;
 import org.hibernate.ogm.datastore.mongodb.impl.MongoDBDatastoreProvider;
 import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.dialect.mongodb.MongoDBDialect;
 import org.hibernate.ogm.grid.EntityKey;
 
@@ -166,5 +167,10 @@ public class MongoDBTestHelper implements TestableGridDialect {
 		if ( value != null && value.length() > 0 ) {
 			envProps.put( environmentVariableName, value );
 		}
+	}
+
+	@Override
+	public GridDialect getGridDialect(SessionFactory sessionFactory) {
+		return new MongoDBDialect( getProvider( sessionFactory ) );
 	}
 }

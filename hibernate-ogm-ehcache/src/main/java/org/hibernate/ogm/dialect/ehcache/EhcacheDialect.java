@@ -21,7 +21,9 @@
 package org.hibernate.ogm.dialect.ehcache;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
@@ -47,6 +49,7 @@ import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -88,11 +91,15 @@ public class EhcacheDialect implements GridDialect {
 		final Cache entityCache = getEntityCache();
 		final Element element = entityCache.get( key );
 		if ( element != null ) {
-			return new Tuple( new MapTupleSnapshot( (Map<String, Object>) element.getValue() ) );
+			return createTuple( element );
 		}
 		else {
 			return null;
 		}
+	}
+
+	private Tuple createTuple(final Element element) {
+		return new Tuple( new MapTupleSnapshot( (Map<String, Object>) element.getValue() ) );
 	}
 
 	@Override
@@ -186,14 +193,17 @@ public class EhcacheDialect implements GridDialect {
 	}
 
 	@Override
-	public long countEntities(String idNameOfIndexedType) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
-
-	@Override
-	public ScrollableResults loadEntities(Class<?> indexedType, int idFetchSize) {
-		// TODO Auto-generated method stub
-		return null;
+	@SuppressWarnings("unchecked")
+	public void forEachTuple(Consumer consumer, String... tables) {
+		Cache entityCache = getEntityCache();
+		List<EntityKey> keys = entityCache.getKeys();
+		for ( EntityKey key : keys ) {
+			for ( String table : tables ) {
+				if ( key.getTable().equals( table ) ) {
+					Element element = entityCache.get( key );
+					consumer.consume( createTuple( element ) );
+				}
+			}
+		}
 	}
 }

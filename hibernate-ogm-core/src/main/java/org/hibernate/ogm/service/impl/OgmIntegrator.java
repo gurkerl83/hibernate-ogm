@@ -92,6 +92,5 @@ public class OgmIntegrator implements Integrator, ServiceContributingIntegrator 
 		serviceRegistryBuilder.addInitiator( GridDialectFactoryInitiator.INSTANCE );
 		serviceRegistryBuilder.addInitiator( TypeTranslatorInitiator.INSTANCE );
 		serviceRegistryBuilder.addInitiator( QueryParserServicesInitiatior.INSTANCE );
-		serviceRegistryBuilder.addInitiator( OgmMassIndexerInitiator.INSTANCE );
 	}
 }

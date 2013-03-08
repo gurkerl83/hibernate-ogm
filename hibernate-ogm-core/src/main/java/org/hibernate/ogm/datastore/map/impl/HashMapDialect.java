@@ -156,13 +156,12 @@ public class HashMapDialect implements GridDialect {
 	}
 
 	@Override
-	public void forEachEntityKey(Consumer consumer, String... tables) {
+	public void forEachTuple(Consumer consumer, String... tables) {
 		Map<EntityKey, Map<String, Object>> entityMap = provider.getEntityMap();
-		for ( Entry<EntityKey, Map<String, Object>> entries : entityMap.entrySet() ) {
+		for ( EntityKey key : entityMap.keySet() ) {
 			for ( String table : tables ) {
-				if ( entries.getKey().getTable().equals( table ) ) {
-					Map<String, Object> map = entityMap.get( entries.getKey() );
-					consumer.consume( new Tuple( new MapTupleSnapshot( map ) ) );
+				if ( key.getTable().equals( table ) ) {
+					consumer.consume( new Tuple( new MapTupleSnapshot( (Map) entityMap.get( key ) ) ) );
 				}
 			}
 		}

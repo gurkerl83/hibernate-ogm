@@ -153,8 +153,8 @@ public class GridDialectLogger implements GridDialect {
 	}
 
 	@Override
-	public void forEachEntityKey(Consumer consumer, String... tables) {
-		 gridDialect.forEachEntityKey( consumer, tables );
+	public void forEachTuple(Consumer consumer, String... tables) {
+		 gridDialect.forEachTuple( consumer, tables );
 	}
 
 }

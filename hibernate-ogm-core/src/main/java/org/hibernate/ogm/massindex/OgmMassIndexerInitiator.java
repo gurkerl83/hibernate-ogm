@@ -22,8 +22,6 @@ package org.hibernate.ogm.massindex;
 
 import java.util.Map;
 
-import org.hibernate.ogm.datastore.impl.DatastoreServices;
-import org.hibernate.ogm.type.TypeTranslator;
 import org.hibernate.search.hcore.impl.MassIndexerFactoryIntegrator;
 import org.hibernate.search.spi.MassIndexerFactory;
 import org.hibernate.service.spi.BasicServiceInitiator;
@@ -44,14 +42,12 @@ public class OgmMassIndexerInitiator implements BasicServiceInitiator<MassIndexe
 	@Override
 	public MassIndexerFactory initiateService(Map configurationValues, ServiceRegistryImplementor registry) {
 		String factoryClassName = (String) configurationValues.get( MassIndexerFactoryIntegrator.MASS_INDEXER_FACTORY_CLASSNAME );
-		if (factoryClassName == null) {
-			DatastoreServices services = registry.getService( DatastoreServices.class );
-			TypeTranslator translator = registry.getService( TypeTranslator.class );
-			return new OgmMassIndexerFactory( services.getGridDialect(), translator );
-		} else {
+		if ( factoryClassName == null ) {
+			return new OgmMassIndexerFactory();
+		}
+		else {
 			return new MassIndexerFactoryIntegrator().initiateService( configurationValues, registry );
 		}
 	}
-
 
 }

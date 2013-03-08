@@ -28,10 +28,12 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.ogm.datastore.map.impl.MapDatastoreProvider;
+import org.hibernate.ogm.massindex.OgmMassIndexerFactory;
 import org.hibernate.ogm.test.hsearch.Insurance;
 import org.hibernate.ogm.test.simpleentity.OgmTestCase;
 import org.hibernate.search.FullTextSession;
 import org.hibernate.search.Search;
+import org.hibernate.search.hcore.impl.MassIndexerFactoryIntegrator;
 import org.junit.Test;
 
 /**
@@ -53,6 +55,14 @@ public class MassIndexTest extends OgmTestCase {
 		}
 		{
 			FullTextSession session = Search.getFullTextSession( openSession() );
+			session.purgeAll( Insurance.class );
+			session.flushToIndexes();
+			@SuppressWarnings("unchecked")
+			List<Insurance> list = session.createQuery( "FROM Insurance" ).list();
+			assertThat( list ).hasSize( 0 );
+		}
+		{
+			FullTextSession session = Search.getFullTextSession( openSession() );
 			session
 				.createIndexer( Insurance.class )
 				.purgeAllOnStart( true )
@@ -69,12 +79,6 @@ public class MassIndexTest extends OgmTestCase {
 			session.clear();
 			session.close();
 		}
-	}
-
-	@Override
-	protected void configure(Configuration cfg) {
-		super.configure( cfg );
-		cfg.setProperty( "hibernate.ogm.datastore.provider", MapDatastoreProvider.class.getName() );
 	}
 
 	@Override
