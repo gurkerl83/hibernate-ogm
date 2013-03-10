@@ -28,6 +28,8 @@ import org.hibernate.SessionFactory;
 import org.hibernate.engine.spi.SessionFactoryImplementor;
 import org.hibernate.ogm.datastore.ehcache.impl.EhcacheDatastoreProvider;
 import org.hibernate.ogm.datastore.spi.DatastoreProvider;
+import org.hibernate.ogm.dialect.GridDialect;
+import org.hibernate.ogm.dialect.ehcache.EhcacheDialect;
 import org.hibernate.ogm.grid.EntityKey;
 
 import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ASSOCIATION_STORE;
@@ -91,4 +93,5 @@ public class EhcacheTestHelper implements TestableGridDialect {
 	public Map<String, String> getEnvironmentProperties() {
 		return null;
 	}
+
 }
