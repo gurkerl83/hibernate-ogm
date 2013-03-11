@@ -21,12 +21,15 @@
 package org.hibernate.ogm.dialect.ehcache;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.Element;
 
 import org.hibernate.LockMode;
+import org.hibernate.ScrollableResults;
 import org.hibernate.dialect.lock.LockingStrategy;
 import org.hibernate.dialect.lock.OptimisticForceIncrementLockingStrategy;
 import org.hibernate.dialect.lock.OptimisticLockingStrategy;
@@ -45,7 +48,9 @@ import org.hibernate.ogm.datastore.spi.TupleContext;
 import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
+import org.hibernate.ogm.grid.EntityKeyMetadata;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -87,11 +92,15 @@ public class EhcacheDialect implements GridDialect {
 		final Cache entityCache = getEntityCache();
 		final Element element = entityCache.get( key );
 		if ( element != null ) {
-			return new Tuple( new MapTupleSnapshot( (Map<String, Object>) element.getValue() ) );
+			return createTuple( element );
 		}
 		else {
 			return null;
 		}
+	}
+
+	private Tuple createTuple(final Element element) {
+		return new Tuple( new MapTupleSnapshot( (Map<String, Object>) element.getValue() ) );
 	}
 
 	@Override
@@ -182,5 +191,20 @@ public class EhcacheDialect implements GridDialect {
 
 	private Cache getAssociationCache() {
 		return datastoreProvider.getCacheManager().getCache( DefaultDatastoreNames.ASSOCIATION_STORE );
+	}
+
+	@Override
+	public void forEachTuple(Consumer consumer, EntityKeyMetadata... entityKeyMetadatas) {
+		Cache entityCache = getEntityCache();
+		@SuppressWarnings("unchecked")
+		List<EntityKey> keys = entityCache.getKeys();
+		for ( EntityKey key : keys ) {
+			for ( EntityKeyMetadata entityKeyMetadata : entityKeyMetadatas ) {
+				if ( key.getTable().equals( entityKeyMetadata.getTable() ) ) {
+					Element element = entityCache.get( key );
+					consumer.consume( createTuple( element ) );
+				}
+			}
+		}
 	}
 }

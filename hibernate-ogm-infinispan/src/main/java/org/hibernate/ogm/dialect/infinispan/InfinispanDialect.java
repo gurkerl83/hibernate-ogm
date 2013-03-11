@@ -25,6 +25,7 @@ import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.ENTITY_STORE
 import static org.hibernate.ogm.datastore.spi.DefaultDatastoreNames.IDENTIFIER_STORE;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.hibernate.LockMode;
 import org.hibernate.dialect.lock.LockingStrategy;
@@ -43,7 +44,9 @@ import org.hibernate.ogm.datastore.spi.TupleContext;
 import org.hibernate.ogm.dialect.GridDialect;
 import org.hibernate.ogm.grid.AssociationKey;
 import org.hibernate.ogm.grid.EntityKey;
+import org.hibernate.ogm.grid.EntityKeyMetadata;
 import org.hibernate.ogm.grid.RowKey;
+import org.hibernate.ogm.massindex.batchindexing.Consumer;
 import org.hibernate.ogm.type.GridType;
 import org.hibernate.persister.entity.Lockable;
 import org.hibernate.type.Type;
@@ -198,6 +201,19 @@ public class InfinispanDialect implements GridDialect {
 	@Override
 	public GridType overrideType(Type type) {
 		return null;
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public void forEachTuple(Consumer consumer, EntityKeyMetadata... entityKeyMetadatas) {
+		Map<EntityKey, Map<String, Object>> cache = provider.getCache(ENTITY_STORE);
+		for ( Entry<EntityKey, Map<String, Object>> entry : cache.entrySet() ) {
+			for ( EntityKeyMetadata entityKeyMetadata : entityKeyMetadatas ) {
+				if ( entry.getKey().getTable().equals( entityKeyMetadata.getTable() ) ) {
+					consumer.consume( getTuple( entry.getKey(), null ) );
+				}
+			}
+		}
 	}
 
 }
