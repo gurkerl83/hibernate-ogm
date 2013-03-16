@@ -43,7 +43,7 @@ public class IndexedNews {
 
 	@DocumentId
 	@EmbeddedId
-	@FieldBridge(impl = newsIdFieldBridge.class)
+	@FieldBridge(impl = NewsIdFieldBridge.class)
 	private NewsID newsId;
 
 	private String content;

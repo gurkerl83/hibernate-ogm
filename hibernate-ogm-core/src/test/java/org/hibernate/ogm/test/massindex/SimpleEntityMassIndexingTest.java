@@ -64,7 +64,7 @@ public class SimpleEntityMassIndexingTest extends OgmTestCase {
 			Session session = openSession();
 			Transaction transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			List<Insurance> list = session.createQuery( "FROM " + Insurance.class.getSimpleName() ).list();
+			List<Insurance> list = session.createQuery( "FROM Insurance " ).list();
 			assertThat( list ).hasSize( 1 );
 			assertThat( list.get( 0 ).getName() ).isEqualTo( "Insurance Corporation" );
 			transaction.commit();
@@ -92,7 +92,7 @@ public class SimpleEntityMassIndexingTest extends OgmTestCase {
 			Session session = openSession();
 			Transaction transaction = session.beginTransaction();
 			@SuppressWarnings("unchecked")
-			List<IndexedNews> list = session.createQuery( "FROM " + IndexedNews.class.getSimpleName() ).list();
+			List<IndexedNews> list = session.createQuery( "FROM IndexedNews " ).list();
 			assertThat( list ).hasSize( 1 );
 			assertThat( list.get( 0 ).getContent() ).isEqualTo( "content" );
 			assertThat( list.get( 0 ).getNewsId().getTitle() ).isEqualTo( "title" );
@@ -145,5 +145,7 @@ public class SimpleEntityMassIndexingTest extends OgmTestCase {
 		super.configure( cfg );
 		cfg.setProperty( "hibernate.search.default.indexBase", getBaseIndexDir().getAbsolutePath() );
 		cfg.setProperty( "hibernate.search.default.directory_provider", "filesystem" );
+		// Infinispan requires to be set to distribution mode for this test to pass
+		cfg.setProperty( "hibernate.ogm.infinispan.configuration_resourcename", "infinispan-dist.xml" );
 	}
 }
