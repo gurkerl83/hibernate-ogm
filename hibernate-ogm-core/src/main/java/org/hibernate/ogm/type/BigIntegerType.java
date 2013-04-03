@@ -31,13 +31,13 @@ import org.hibernate.type.descriptor.java.BigIntegerTypeDescriptor;
 /**
  * Type descriptor for translating a BigInteger Java type into its string representation
  * in order to be stored in the datastore deposit.
- * 
+ *
  * The {@link BigInteger#toString} method is used to get a string representation, this method use
  * the plain notation with minus symbol only  that should be cross platform/language usable.
- * 
+ *
  * @see java.math.BigInteger
  * @see java.math.BigInteger#toString()
- * 
+ *
  * @author Nicolas Helleringer
  */
 public class BigIntegerType extends AbstractGenericBasicType<BigInteger> {
@@ -52,7 +52,7 @@ public class BigIntegerType extends AbstractGenericBasicType<BigInteger> {
 	public String getName() {
 		return "big_integer";
 	}
-	
+
 	@Override
 	protected boolean registerUnderJavaType() {
 		return true;
@@ -62,12 +62,12 @@ public class BigIntegerType extends AbstractGenericBasicType<BigInteger> {
 	public int getColumnSpan(Mapping mapping) throws MappingException {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString(BigInteger value) throws HibernateException{
 		return value.toString();
 	}
-	
+
 	@Override
 	public BigInteger fromStringValue(String string) throws HibernateException {
 		try {

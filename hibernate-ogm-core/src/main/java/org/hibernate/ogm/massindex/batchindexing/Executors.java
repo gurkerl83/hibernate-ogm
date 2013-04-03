@@ -33,7 +33,7 @@ import org.hibernate.search.util.logging.impl.LoggerFactory;
 /**
  * Helper class to create threads;
  * these threads are grouped and named to be identified in a profiler.
- * 
+ *
  * @author Sanne Grinovero
  */
 public class Executors {
@@ -62,7 +62,7 @@ public class Executors {
 
 	/**
 	 * Creates a new fixed size ThreadPoolExecutor
-	 * 
+	 *
 	 * @param threads
 	 *            the number of threads
 	 * @param groupname
@@ -113,7 +113,7 @@ public class Executors {
 		/**
 		 * Puts the Runnable to the blocking queue, effectively blocking
 		 * the delegating thread until space is available.
-		 * 
+
 		 * @param r
 		 *            the runnable task requested to be executed
 		 * @param e

@@ -44,7 +44,7 @@ public class UrlType extends AbstractGenericBasicType<URL> {
 	public String getName() {
 		return "url";
 	}
-	
+
 	@Override
 	protected boolean registerUnderJavaType() {
 		return false;
@@ -54,12 +54,12 @@ public class UrlType extends AbstractGenericBasicType<URL> {
 	public int getColumnSpan(Mapping mapping) throws MappingException {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString(URL value) throws HibernateException{
 		return value.toString();
 	}
-	
+
 	@Override
 	public URL fromStringValue(String string) throws HibernateException {
 		try {

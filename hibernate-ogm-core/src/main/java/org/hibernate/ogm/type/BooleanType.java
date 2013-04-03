@@ -41,7 +41,7 @@ public class BooleanType extends AbstractGenericBasicType<Boolean> {
 	public String getName() {
 		return "boolean";
 	}
-	
+
 	@Override
 	protected boolean registerUnderJavaType() {
 		return true;
@@ -51,12 +51,12 @@ public class BooleanType extends AbstractGenericBasicType<Boolean> {
 	public int getColumnSpan(Mapping mapping) throws MappingException {
 		return 1;
 	}
-	
+
 	@Override
 	public String toString(Boolean value) throws HibernateException{
 		return value.toString();
 	}
-	
+
 	@Override
 	public Boolean fromStringValue(String value) throws HibernateException {
 		//avoid using Boolean.parse as we want to explicitly check for 'false' literal

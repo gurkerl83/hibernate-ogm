@@ -417,7 +417,7 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 	 * @see #getSegmentValue()
 	 */
 	protected String determineSegmentValue(Properties params) {
-		String segmentValue = params.getProperty(SEGMENT_VALUE_PARAM);
+		String segmentValue = params.getProperty( SEGMENT_VALUE_PARAM );
 		if ( StringHelper.isEmpty( segmentValue ) ) {
 			segmentValue = determineDefaultSegmentValue( params );
 		}
@@ -459,7 +459,7 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 	}
 
 	protected int determineIncrementSize(Properties params) {
-		return ConfigurationHelper.getInt(INCREMENT_PARAM, params, DEFAULT_INCREMENT_SIZE);
+		return ConfigurationHelper.getInt( INCREMENT_PARAM, params, DEFAULT_INCREMENT_SIZE );
 	}
 
 	//TODO remove build*Query
@@ -516,7 +516,7 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 		//we want to work out of transaction
 		boolean workInTransaction = false;
 		Work work = new Work();
-		Serializable generatedValue = session.getTransactionCoordinator().getTransaction().createIsolationDelegate().delegateWork(work, workInTransaction);
+		Serializable generatedValue = session.getTransactionCoordinator().getTransaction().createIsolationDelegate().delegateWork( work, workInTransaction );
 		return generatedValue;
 	}
 
@@ -531,9 +531,9 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 				new Object[] { segmentColumnValue }
 		);
 
-		GridDialect dialect = getDialect(session);
+		GridDialect dialect = getDialect( session );
 		IntegralDataTypeHolder value = IdentifierGeneratorHelper.getIntegralDataTypeHolder( identifierType.getReturnedClass() );
-		dialect.nextValue(key, value, optimizer.applyIncrementSizeToSourceValues() ? incrementSize : 1, initialValue);
+		dialect.nextValue( key, value, optimizer.applyIncrementSizeToSourceValues() ? incrementSize : 1, initialValue );
 
 		accessCount++;
 
@@ -542,7 +542,7 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 
 	private GridDialect getDialect(SessionImplementor session) {
 		if (gridDialect == null) {
-			gridDialect = session.getFactory().getServiceRegistry().getService(DatastoreServices.class).getGridDialect();
+			gridDialect = session.getFactory().getServiceRegistry().getService( DatastoreServices.class ).getGridDialect();
 		}
 		return gridDialect;
 	}
@@ -556,7 +556,7 @@ public class OgmTableGenerator implements PersistentIdentifierGenerator, Configu
 	private void defineGridTypes(SessionImplementor session) {
 		if ( identifierValueGridType == null ) {
 			ServiceRegistryImplementor registry = session.getFactory().getServiceRegistry();
-			identifierValueGridType = registry.getService(TypeTranslator.class).getType(new LongType());
+			identifierValueGridType = registry.getService( TypeTranslator.class ).getType( new LongType() );
 		}
 	}
 

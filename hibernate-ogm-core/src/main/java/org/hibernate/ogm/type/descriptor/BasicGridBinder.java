@@ -35,7 +35,7 @@ import org.hibernate.type.descriptor.sql.SqlTypeDescriptor;
 /**
  * @author Emmanuel Bernard
  */
-public abstract class BasicGridBinder<X> implements GridValueBinder<X>{
+public abstract class BasicGridBinder<X> implements GridValueBinder<X> {
 	private static final Log log = LoggerFactory.make();
 	private final JavaTypeDescriptor<X> javaDescriptor;
 	private final GridTypeDescriptor gridDescriptor;

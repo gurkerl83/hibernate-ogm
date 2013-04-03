@@ -76,7 +76,7 @@ public final class RowKey implements Serializable {
 		}
 
 		RowKey that = ( RowKey ) o;
-		
+
 		if ( !table.equals( that.table ) ) {
 			return false;
 		}
