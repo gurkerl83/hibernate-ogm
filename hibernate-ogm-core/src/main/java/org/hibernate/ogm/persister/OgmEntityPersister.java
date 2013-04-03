@@ -122,7 +122,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			final NaturalIdRegionAccessStrategy naturalIdRegionAccessStrategy,
 			final SessionFactoryImplementor factory,
 			final Mapping mapping) throws HibernateException {
-		super(persistentClass, cacheAccessStrategy, naturalIdRegionAccessStrategy, factory);
+		super( persistentClass, cacheAccessStrategy, naturalIdRegionAccessStrategy, factory );
 		if ( log.isTraceEnabled() ) {
 			log.tracef( "Creating OgmEntityPersister for %s", persistentClass.getClassName() );
 		}
@@ -216,10 +216,10 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			constraintOrderedKeyColumnNames = new String[][] { getIdentifierColumnNames() };
 		}
 
-		initPropertyPaths(mapping);
+		initPropertyPaths( mapping );
 
 		//Grid related metadata
-		TypeTranslator typeTranslator = serviceRegistry.getService(TypeTranslator.class);
+		TypeTranslator typeTranslator = serviceRegistry.getService( TypeTranslator.class );
 		final Type[] types = getPropertyTypes();
 		final int length = types.length;
 		gridPropertyTypes = new GridType[length];
@@ -336,7 +336,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			CacheKey cacheKey = session.generateCacheKey( id, getIdentifierType(), getEntityName() );
 			Object ce = getCacheAccessStrategy().get( cacheKey, session.getTimestamp() );
 			if (ce!=null) {
-				CacheEntry cacheEntry = (CacheEntry) getCacheEntryStructure().destructure(ce, getFactory());
+				CacheEntry cacheEntry = (CacheEntry) getCacheEntryStructure().destructure( ce, getFactory() );
 				if ( !cacheEntry.areLazyPropertiesUnfetched() ) {
 					//note early exit here:
 					return initializeLazyPropertiesFromCache( fieldName, entity, session, entry, cacheEntry );
@@ -411,12 +411,12 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 
 		/*
 		 * We get the value from the grid and compare the version values before putting the next version in
-		 * Contrary to the database version, there is 
+		 * Contrary to the database version, there is
 		 * TODO should we use cache.replace() it seems more expensive to pass the resultset around "just" the atomicity of the operation
 		 */
 		final EntityKey key = EntityKeyBuilder.fromPersister( this, id, session );
 		final Tuple resultset = gridDialect.getTuple( key, this.getTupleContext() );
-		checkVersionAndRaiseSOSE(id, currentVersion, session, resultset);
+		checkVersionAndRaiseSOSE( id, currentVersion, session, resultset );
 		gridVersionType.nullSafeSet( resultset, nextVersion, new String[] { getVersionColumnName() }, session );
 		gridDialect.updateTuple( resultset, key );
 		return nextVersion;
@@ -535,7 +535,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 						createEntityLoader( LockMode.PESSIMISTIC_FORCE_INCREMENT )
 			);
 		loaders.put( LockMode.OPTIMISTIC, createEntityLoader( LockMode.OPTIMISTIC) );
-		loaders.put( LockMode.OPTIMISTIC_FORCE_INCREMENT, createEntityLoader(LockMode.OPTIMISTIC_FORCE_INCREMENT) );
+		loaders.put( LockMode.OPTIMISTIC_FORCE_INCREMENT, createEntityLoader( LockMode.OPTIMISTIC_FORCE_INCREMENT ) );
 
 		//FIXME handle cascading merge and refresh
 		loaders.put(
@@ -628,7 +628,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			Tuple resultset,
 			SessionImplementor session,
 			Object object,
-			int index, 
+			int index,
 			boolean[] propertySelectable,
 			boolean allProperties,
 			boolean[] laziness,
@@ -674,7 +674,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 	@Override
 	public String[] getPropertyAliases(String suffix, int i) {
 		//TODO do something about suffixes
-		return getPropertyColumnNames(i);
+		return getPropertyColumnNames( i );
 	}
 
 	@Override
@@ -693,7 +693,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 
 	@Override
 	protected LockingStrategy generateLocker(LockMode lockMode) {
-		return gridDialect.getLockingStrategy(this, lockMode);
+		return gridDialect.getLockingStrategy( this, lockMode );
 	}
 
 
@@ -788,7 +788,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 							: propsToUpdate;
 					//TODO do a diff on the properties value from resultset and the dirty value
 					GridType[] types = gridPropertyTypes;
-					
+
 					for ( int i = 0; i < entityMetamodel.getPropertySpan(); i++ ) {
 						boolean include = includeOldField[i] &&
 								isPropertyOfTable( i, j ) &&
@@ -812,7 +812,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 				}
 
 				//dehydrate
-				dehydrate(resultset, fields, propsToUpdate, getPropertyColumnUpdateable(), j, id, session );
+				dehydrate( resultset, fields, propsToUpdate, getPropertyColumnUpdateable(), j, id, session );
 				gridDialect.updateTuple( resultset, key );
 			}
 		}
@@ -895,7 +895,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 
 		final int span = getTableSpan();
 		//insert operations are always dynamic in OGM
-		boolean[] propertiesToInsert = getPropertiesToInsert(fields);
+		boolean[] propertiesToInsert = getPropertiesToInsert( fields );
 		for ( int j = 0; j < span; j++ ) {
 			if ( isInverseTable( j ) ) {
 				return;
@@ -929,7 +929,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			resultset = createNewResultSetIfNull( key, resultset, id, session );
 
 			//dehydrate
-			dehydrate(resultset, fields, propertiesToInsert, getPropertyColumnInsertable(), j, id, session );
+			dehydrate( resultset, fields, propertiesToInsert, getPropertyColumnInsertable(), j, id, session );
 			gridDialect.updateTuple( resultset, key );
 		}
 	}
@@ -940,7 +940,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			Serializable id,
 			SessionImplementor session) {
 		if (resultset == null) {
-			resultset = gridDialect.createTuple(key);
+			resultset = gridDialect.createTuple( key );
 			gridIdentifierType.nullSafeSet( resultset, id, getIdentifierColumnNames(), session );
 		}
 		return resultset;
@@ -1026,8 +1026,8 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 			//delete association information
 			//needs to be executed before the tuple removal because the AtomicMap in ISPN is cleared upon removal
 			new EntityDehydrator()
-				.gridDialect(gridDialect)
-				.gridPropertyTypes(gridPropertyTypes)
+				.gridDialect( gridDialect )
+				.gridPropertyTypes( gridPropertyTypes )
 				.gridIdentifierType( gridIdentifierType )
 				.id( id )
 				.persister( this )
@@ -1174,7 +1174,7 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 
 	@Override
 	public String getSubclassForDiscriminatorValue(Object value) {
-		return subclassByDiscriminatorValue.get(value);
+		return subclassByDiscriminatorValue.get( value );
 	}
 
 	@Override

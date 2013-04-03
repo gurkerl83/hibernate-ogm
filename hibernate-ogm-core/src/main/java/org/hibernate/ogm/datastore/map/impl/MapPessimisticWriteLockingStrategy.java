@@ -54,7 +54,7 @@ public class MapPessimisticWriteLockingStrategy implements LockingStrategy {
 		this.lockable = lockable;
 		this.lockMode = lockMode;
 		TypeTranslator typeTranslator = lockable.getFactory().getServiceRegistry().getService( TypeTranslator.class );
-		this.identifierGridType = typeTranslator.getType(lockable.getIdentifierType());
+		this.identifierGridType = typeTranslator.getType( lockable.getIdentifierType() );
 	}
 
 	@Override
@@ -72,12 +72,12 @@ public class MapPessimisticWriteLockingStrategy implements LockingStrategy {
 
 	protected final MapDatastoreProvider getProvider(SessionImplementor session) {
 		if ( provider == null ) {
-			DatastoreProvider service = session.getFactory().getServiceRegistry().getService(DatastoreProvider.class);
+			DatastoreProvider service = session.getFactory().getServiceRegistry().getService( DatastoreProvider.class );
 			if ( service instanceof MapDatastoreProvider ) {
 				provider = (MapDatastoreProvider) service;
 			}
 			else {
-				log.unexpectedDatastoreProvider(service.getClass(), MapDatastoreProvider.class);
+				log.unexpectedDatastoreProvider( service.getClass(), MapDatastoreProvider.class );
 			}
 		}
 		return provider;

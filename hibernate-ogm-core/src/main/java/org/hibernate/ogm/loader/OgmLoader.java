@@ -20,6 +20,12 @@
  */
 package org.hibernate.ogm.loader;
 
+import java.io.Serializable;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.hibernate.HibernateException;
 import org.hibernate.LockMode;
 import org.hibernate.LockOptions;
@@ -28,7 +34,11 @@ import org.hibernate.annotations.common.AssertionFailure;
 import org.hibernate.cfg.NotYetImplementedException;
 import org.hibernate.collection.spi.PersistentCollection;
 import org.hibernate.engine.internal.TwoPhaseLoad;
-import org.hibernate.engine.spi.*;
+import org.hibernate.engine.spi.EntityUniqueKey;
+import org.hibernate.engine.spi.PersistenceContext;
+import org.hibernate.engine.spi.QueryParameters;
+import org.hibernate.engine.spi.SessionFactoryImplementor;
+import org.hibernate.engine.spi.SessionImplementor;
 import org.hibernate.event.spi.EventSource;
 import org.hibernate.event.spi.PostLoadEvent;
 import org.hibernate.event.spi.PreLoadEvent;
@@ -51,7 +61,6 @@ import org.hibernate.ogm.util.impl.LoggerFactory;
 import org.hibernate.ogm.util.impl.PropertyMetadataProvider;
 import org.hibernate.ogm.util.impl.StringHelper;
 import org.hibernate.persister.collection.CollectionPersister;
-import org.hibernate.persister.entity.EntityPersister;
 import org.hibernate.persister.entity.Loadable;
 import org.hibernate.persister.entity.UniqueKeyLoadable;
 import org.hibernate.pretty.MessageHelper;
@@ -59,12 +68,6 @@ import org.hibernate.proxy.HibernateProxy;
 import org.hibernate.type.AssociationType;
 import org.hibernate.type.EntityType;
 import org.hibernate.type.Type;
-
-import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Load an entity from the Grid
@@ -115,7 +118,7 @@ public class OgmLoader implements UniqueEntityLoader {
 		this.factory = entityPersisters[0].getFactory();
 		this.gridDialect = this.factory.getServiceRegistry().getService( DatastoreServices.class ).getGridDialect();
 
-		//NONE, because its the requested lock mode, not the actual! 
+		// NONE, because its the requested lock mode, not the actual!
 		final int fromSize = 1;
 		this.defaultLockModes = ArrayHelper.fillArray( LockMode.NONE, fromSize );
 		this.collectionAliases = new CollectionAliases[0];
@@ -270,7 +273,7 @@ public class OgmLoader implements UniqueEntityLoader {
 			persistenceContext.setDefaultReadOnly( defaultReadOnlyOrig );
 		}
 
-		log.debug("done entity load");
+		log.debug( "done entity load" );
 		return result;
 	}
 
@@ -423,7 +426,7 @@ public class OgmLoader implements UniqueEntityLoader {
 				Object proxy = session.getPersistenceContext().proxyFor( persisters[i], keys[i], entity );
 				if ( entity != proxy ) {
 					// force the proxy to resolve itself
-					( ( HibernateProxy ) proxy ).getHibernateLazyInitializer().setImplementation(entity);
+					( (HibernateProxy) proxy ).getHibernateLazyInitializer().setImplementation( entity );
 					row[i] = proxy;
 				}
 			}
@@ -480,7 +483,7 @@ public class OgmLoader implements UniqueEntityLoader {
 			}
 			final OgmCollectionPersister persister = (OgmCollectionPersister) getCollectionPersisters()[0];
 			PropertyMetadataProvider metadataProvider = new PropertyMetadataProvider()
-				.gridDialect(gridDialect)
+				.gridDialect( gridDialect )
 				.key( id )
 				.keyGridType( persister.getKeyGridType() )
 				.collectionPersister( persister )
@@ -671,7 +674,7 @@ public class OgmLoader implements UniqueEntityLoader {
 				log.trace( "total objects hydrated: " + hydratedObjectsSize );
 			}
 			for ( int i = 0; i < hydratedObjectsSize; i++ ) {
-				TwoPhaseLoad.initializeEntity( hydratedObjects.get(i), readOnly, session, pre, post );
+				TwoPhaseLoad.initializeEntity( hydratedObjects.get( i ), readOnly, session, pre, post );
 			}
 		}
 
@@ -853,10 +856,10 @@ public class OgmLoader implements UniqueEntityLoader {
 				);
 		}
 
-		if ( LockMode.NONE != lockMode && upgradeLocks() ) { //no point doing this if NONE was requested
+		if ( LockMode.NONE != lockMode && upgradeLocks() ) { // no point doing this if NONE was requested
 
 			final boolean isVersionCheckNeeded = persister.isVersioned() &&
-					session.getPersistenceContext().getEntry(object)
+					session.getPersistenceContext().getEntry( object )
 							.getLockMode().lessThan( lockMode );
 			// we don't need to worry about existing version being uninitialized
 			// because this block isn't called by a re-entrant load (re-entrant
@@ -866,8 +869,8 @@ public class OgmLoader implements UniqueEntityLoader {
 				Object oldVersion = session.getPersistenceContext().getEntry( object ).getVersion();
 				persister.checkVersionAndRaiseSOSE( key.getIdentifier(), oldVersion, session, resultset );
 				//we need to upgrade the lock mode to the mode requested
-				session.getPersistenceContext().getEntry(object)
-						.setLockMode(lockMode);
+				session.getPersistenceContext().getEntry( object )
+						.setLockMode( lockMode );
 			}
 		}
 	}
@@ -1018,8 +1021,8 @@ public class OgmLoader implements UniqueEntityLoader {
 		final AssociationType[] ownerAssociationTypes = getOwnerAssociationTypes();
 		if ( ownerAssociationTypes != null && ownerAssociationTypes[i] != null ) {
 			String ukName = ownerAssociationTypes[i].getRHSUniqueKeyPropertyName();
-			if (ukName!=null) {
-				final int index = ( ( UniqueKeyLoadable ) persister ).getPropertyIndex(ukName);
+			if ( ukName != null ) {
+				final int index = ( (UniqueKeyLoadable) persister ).getPropertyIndex( ukName );
 				final Type type = persister.getPropertyTypes()[index];
 
 				// polymorphism not really handled completely correctly,

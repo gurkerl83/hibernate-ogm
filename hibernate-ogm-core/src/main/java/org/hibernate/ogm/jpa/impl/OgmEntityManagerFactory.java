@@ -53,7 +53,7 @@ public class OgmEntityManagerFactory implements EntityManagerFactory, HibernateE
 
 	@Override
 	public EntityManager createEntityManager(Map map) {
-		return new OgmEntityManager( this, hibernateEmf.createEntityManager(map) );
+		return new OgmEntityManager( this, hibernateEmf.createEntityManager( map ) );
 	}
 
 	@Override
