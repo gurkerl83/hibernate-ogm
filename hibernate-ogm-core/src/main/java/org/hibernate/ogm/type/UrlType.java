@@ -63,9 +63,10 @@ public class UrlType extends AbstractGenericBasicType<URL> {
 	@Override
 	public URL fromStringValue(String string) throws HibernateException {
 		try {
-			return new URL(string);
-		} catch (MalformedURLException e) {
-			throw new HibernateException("Unable to rebuild URL from String", e);
+			return new URL( string );
+		}
+		catch ( MalformedURLException e ) {
+			throw new HibernateException( "Unable to rebuild URL from String", e );
 		}
 	}
 }

@@ -71,9 +71,10 @@ public class BigDecimalType extends AbstractGenericBasicType<BigDecimal> {
 	@Override
 	public BigDecimal fromStringValue(String string) throws HibernateException {
 		try {
-			return new BigDecimal(string);
-		} catch (NumberFormatException e) {
-			throw new HibernateException("Unable to rebuild BigDecimal from String", e);
+			return new BigDecimal( string );
+		}
+		catch ( NumberFormatException e ) {
+			throw new HibernateException( "Unable to rebuild BigDecimal from String", e );
 		}
 	}
 }

@@ -71,9 +71,10 @@ public class BigIntegerType extends AbstractGenericBasicType<BigInteger> {
 	@Override
 	public BigInteger fromStringValue(String string) throws HibernateException {
 		try {
-			return new BigInteger(string);
-		} catch (NumberFormatException e) {
-			throw new HibernateException("Unable to rebuild BigInteger from String", e);
+			return new BigInteger( string );
+		}
+		catch ( NumberFormatException e ) {
+			throw new HibernateException( "Unable to rebuild BigInteger from String", e );
 		}
 	}
 }

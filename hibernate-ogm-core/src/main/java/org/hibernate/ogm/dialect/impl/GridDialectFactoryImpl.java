@@ -49,7 +49,7 @@ public class GridDialectFactoryImpl implements GridDialectFactory {
 			try {
 				maybeDialectClass = registry.getService( ClassLoaderService.class ).classForName( value.toString() );
 			}
-			catch (RuntimeException e) {
+			catch ( RuntimeException e ) {
 				throw log.dialectClassCannotBeFound( value.toString() );
 			}
 			if ( GridDialect.class.isAssignableFrom( maybeDialectClass ) ) {
@@ -63,7 +63,7 @@ public class GridDialectFactoryImpl implements GridDialectFactory {
 			throw log.gridDialectPropertyOfUnknownType( value.getClass() );
 		}
 		try {
-			//FIXME not sure I like this constructor business. Argue with Sanne
+			// FIXME not sure I like this constructor business. Argue with Sanne
 			// to me that's blocking the doors for future enhancements (ie injecting more things)
 			// an alternative is to pass the ServiceRegistry verbatim but I'm not sure that's enough either
 			Constructor injector = null;
@@ -79,15 +79,17 @@ public class GridDialectFactoryImpl implements GridDialectFactory {
 			}
 			GridDialect gridDialect = (GridDialect) injector.newInstance( registry.getService( DatastoreProvider.class ) );
 			log.useGridDialect( gridDialect.getClass().getName() );
-			if (GridDialectLogger.activationNeeded()) {
-				gridDialect = new GridDialectLogger(gridDialect);
+			if ( GridDialectLogger.activationNeeded() ) {
+				gridDialect = new GridDialectLogger( gridDialect );
 				log.info( "Grid dialect logs are active" );
-			} else {
+			}
+			else {
 				log.info( "Grid dialect logs are disabled" );
 			}
 			return gridDialect;
-		} catch (Exception e) {
-			throw log.cannotInstantiateGridDialect( dialectClass, e);
+		}
+		catch ( Exception e ) {
+			throw log.cannotInstantiateGridDialect( dialectClass, e );
 		}
 	}
 }

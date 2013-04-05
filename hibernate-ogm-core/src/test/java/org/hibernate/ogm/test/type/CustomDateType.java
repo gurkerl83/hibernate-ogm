@@ -92,9 +92,10 @@ public class CustomDateType extends AbstractGenericBasicType<Date> {
 					else {
 						Date date = null;
 						try {
-							date = new SimpleDateFormat(  "yyyyMMdd" ).parse( result );
-						} catch ( ParseException e ) {
-							throw new HibernateException("Unable to read date from datastore " + result, e);
+							date = new SimpleDateFormat( "yyyyMMdd" ).parse( result );
+						}
+						catch ( ParseException e ) {
+							throw new HibernateException( "Unable to read date from datastore " + result, e );
 						}
 						if ( log.isTraceEnabled() ) {
 							log.tracef( "found [$s] as column [$s]", result, name );

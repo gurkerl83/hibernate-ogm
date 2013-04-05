@@ -72,8 +72,9 @@ public class UUIDType extends AbstractGenericBasicType<UUID> {
 	public UUID fromStringValue(String string) throws HibernateException {
 		try {
 			return UUID.fromString( string );
-		} catch (NumberFormatException e) {
-			throw new HibernateException("Unable to rebuild BigInteger from String", e);
+		}
+		catch ( NumberFormatException e ) {
+			throw new HibernateException( "Unable to rebuild BigInteger from String", e );
 		}
 	}
 }

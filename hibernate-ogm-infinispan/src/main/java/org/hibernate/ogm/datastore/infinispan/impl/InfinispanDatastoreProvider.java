@@ -165,7 +165,8 @@ public class InfinispanDatastoreProvider implements DatastoreProvider, Startable
 					configurationFile.close();
 				}
 			}
-		} catch (RuntimeException re) {
+		}
+		catch ( RuntimeException re ) {
 			throw raiseConfigurationError( re, cfgName );
 		}
 		catch (IOException e) {

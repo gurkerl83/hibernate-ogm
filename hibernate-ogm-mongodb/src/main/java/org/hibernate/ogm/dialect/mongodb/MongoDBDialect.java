@@ -290,7 +290,8 @@ public class MongoDBDialect implements GridDialect {
 		final DBObject result = findAssociation( key );
 		if ( result == null ) {
 			return null;
-		} else {
+		}
+		else {
 			return new Association( new MongoDBAssociationSnapshot( result, key, provider.getAssociationStorage() ) );
 		}
 	}
