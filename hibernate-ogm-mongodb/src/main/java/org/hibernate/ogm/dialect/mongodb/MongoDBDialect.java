@@ -332,10 +332,10 @@ public class MongoDBDialect implements GridDialect {
 		}
 		DBCollection associations = getAssociationCollection( key );
 		DBObject assoc = MongoHelpers.associationKeyToObject( provider.getAssociationStorage(), key );
-		
+
 		assoc.put( ROWS_FIELDNAME, Collections.EMPTY_LIST );
 		associations.insert( assoc );
-		
+
 		return new Association( new MongoDBAssociationSnapshot( assoc, key, provider.getAssociationStorage() ) );
 	}
 
@@ -389,7 +389,7 @@ public class MongoDBDialect implements GridDialect {
 
 			switch ( action.getType() ) {
 			case CLEAR:
-				update = new BasicDBObject( "$set", new BasicDBObject (associationField, Collections.EMPTY_LIST ) );
+				update = new BasicDBObject( "$set", new BasicDBObject( associationField, Collections.EMPTY_LIST ) );
 				break;
 			case PUT_NULL:
 			case PUT:
