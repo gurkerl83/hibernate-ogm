@@ -642,6 +642,7 @@
                         <consoleOutput>true</consoleOutput>
                         <failsOnError>true</failsOnError>
                         <violationSeverity>error</violationSeverity>
+                        <includeTestSourceDirectory>true</includeTestSourceDirectory>
                     </configuration>
                     <executions>
                         <execution>

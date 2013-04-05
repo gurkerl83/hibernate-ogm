@@ -32,22 +32,42 @@ import org.hibernate.search.annotations.NumericField;
 /**
  * @author Emmanuel Bernard
  */
-@Entity @Indexed
+@Entity
+@Indexed
 public class Hypothesis {
 
 	@Id
-	public String getId() { return id; }
-	public void setId(String id) { this.id = id; }
+	public String getId() {
+		return id;
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
 	private String id;
 
-	@Field(analyze=Analyze.NO)
-	public String getDescription() { return description; }
-	public void setDescription(String description) { this.description = description; }
+	@Field(analyze = Analyze.NO)
+	public String getDescription() {
+		return description;
+	}
+
+	public void setDescription(String description) {
+		this.description = description;
+	}
+
 	private String description;
 
 	@Column(name = "pos")
-	@Field @NumericField
-	public int getPosition() { return position; }
-	public void setPosition(int position ) { this.position = position; }
-	private int position; 
+	@Field
+	@NumericField
+	public int getPosition() {
+		return position;
+	}
+
+	public void setPosition(int position) {
+		this.position = position;
+	}
+
+	private int position;
 }
