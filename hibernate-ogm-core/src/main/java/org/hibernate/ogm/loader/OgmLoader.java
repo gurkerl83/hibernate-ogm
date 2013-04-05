@@ -773,7 +773,9 @@ public class OgmLoader implements UniqueEntityLoader {
 		final List hydratedObjects,
 		final SessionImplementor session)
 	throws HibernateException {
-		if ( keys.length > 1 ) throw new NotYetImplementedException( "Loading involving several entities in one result set is not yet supported in OGM" );
+		if ( keys.length > 1 ) {
+			throw new NotYetImplementedException( "Loading involving several entities in one result set is not yet supported in OGM" );
+		}
 
 		final int cols = persisters.length;
 

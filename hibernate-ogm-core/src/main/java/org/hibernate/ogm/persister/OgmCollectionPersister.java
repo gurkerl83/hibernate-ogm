@@ -264,8 +264,9 @@ public class OgmCollectionPersister extends AbstractCollectionPersister implemen
 	@Override
 	protected int doUpdateRows(Serializable key, PersistentCollection collection, SessionImplementor session)
 			throws HibernateException {
-		if ( ArrayHelper.isAllFalse( elementColumnIsSettable ) )
+		if ( ArrayHelper.isAllFalse( elementColumnIsSettable ) ) {
 			return 0;
+		}
 		int count = 0;
 		int i = 0;
 		Iterator entries = collection.entries( this );

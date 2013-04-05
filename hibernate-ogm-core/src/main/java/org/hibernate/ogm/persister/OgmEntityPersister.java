@@ -959,7 +959,9 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 	public void delete(Serializable id, Object version, Object object, SessionImplementor session)
 			throws HibernateException {
 		final int span = getTableSpan();
-		if ( span > 1 ) throw new HibernateException( "Hibernate OGM does not yet support entities spanning multiple tables");
+		if ( span > 1 ) {
+			throw new HibernateException( "Hibernate OGM does not yet support entities spanning multiple tables");
+		}
 		final EntityMetamodel entityMetamodel = getEntityMetamodel();
 		boolean isImpliedOptimisticLocking = !entityMetamodel.isVersioned() && isAllOrDirtyOptLocking();
 		Object[] loadedState = null;
@@ -1069,19 +1071,25 @@ public class OgmEntityPersister extends AbstractEntityPersister implements Entit
 
 	@Override
 	public String getSubclassTableName(int j) {
-		if (j!=0) throw new AssertionFailure("only one table");
+		if ( j!=0 ) {
+			throw new AssertionFailure("only one table");
+		}
 		return tableName;
 	}
 
 	@Override
 	protected String[] getSubclassTableKeyColumns(int j) {
-		if (j!=0) throw new AssertionFailure("only one table");
+		if ( j!=0 ) {
+			throw new AssertionFailure("only one table");
+		}
 		return getIdentifierColumnNames();
 	}
 
 	@Override
 	protected boolean isClassOrSuperclassTable(int j) {
-		if (j!=0) throw new AssertionFailure("only one table");
+		if ( j!=0 ) {
+			throw new AssertionFailure("only one table");
+		}
 		return true;
 	}
 

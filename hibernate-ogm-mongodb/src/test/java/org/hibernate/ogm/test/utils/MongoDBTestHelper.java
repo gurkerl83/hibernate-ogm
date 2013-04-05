@@ -74,17 +74,18 @@ public class MongoDBTestHelper implements TestableGridDialect {
 		DB db = provider.getDatabase();
 		int count = 0;
 		for ( String collectionName : db.getCollectionNames() ) {
-			if ( collectionName.startsWith( "system." ) )
+			if ( collectionName.startsWith( "system." ) ) {
 				continue;
-
+			}
 			if ( storage == AssociationStorage.GLOBAL_COLLECTION
-					&& collectionName.equals( Environment.MONGODB_DEFAULT_ASSOCIATION_STORE ) )
+					&& collectionName.equals( Environment.MONGODB_DEFAULT_ASSOCIATION_STORE ) ) {
 				continue;
+			}
 
 			if ( storage == AssociationStorage.COLLECTION
-					&& collectionName.startsWith( MongoDBDialect.ASSOCIATIONS_COLLECTION_PREFIX ) )
+					&& collectionName.startsWith( MongoDBDialect.ASSOCIATIONS_COLLECTION_PREFIX ) ) {
 				continue;
-
+			}
 
 			count += db.getCollection( collectionName ).count();
 		}
