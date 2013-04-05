@@ -20,9 +20,7 @@
  */
 package org.hibernate.ogm.datastore.spi;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * Represents all information used to load an entity

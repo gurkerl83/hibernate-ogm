@@ -22,15 +22,15 @@ package org.hibernate.ogm.logging.mongodb.impl;
 
 import static org.jboss.logging.Logger.Level.INFO;
 import static org.jboss.logging.Logger.Level.TRACE;
-import static org.jboss.logging.Logger.Level.WARN;
 
-import com.mongodb.MongoException;
 import org.hibernate.HibernateException;
 import org.hibernate.ogm.datastore.mongodb.Environment;
 import org.jboss.logging.Cause;
 import org.jboss.logging.LogMessage;
 import org.jboss.logging.Message;
 import org.jboss.logging.MessageLogger;
+
+import com.mongodb.MongoException;
 
 /**
  * @author Sanne Grinovero <sanne@hibernate.org> (C) 2012 Red Hat Inc.

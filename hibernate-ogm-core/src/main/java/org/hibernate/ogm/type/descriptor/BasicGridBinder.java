@@ -20,7 +20,6 @@
  */
 package org.hibernate.ogm.type.descriptor;
 
-import java.sql.SQLException;
 import java.util.Arrays;
 
 import org.hibernate.engine.jdbc.LobCreator;
@@ -87,7 +86,7 @@ public abstract class BasicGridBinder<X> implements GridValueBinder<X> {
 	 * @param index The index at which to bind
 	 * @param options The binding options
 	 *
-	 * @throws SQLException Indicates a problem binding to the prepared statement.
+	 * @throws java.sql.SQLException Indicates a problem binding to the prepared statement.
 	 */
 	protected abstract void doBind(Tuple resultset, X value, String[] names, WrapperOptions options);
 }

@@ -33,24 +33,18 @@
             <property name="message" value="Correct header not found" />
         </module>
 
-        <!-- Checks for imports -->
+        <module name="UnusedImports" />
         <module name="AvoidStarImport" />
         <module name="RedundantImport" />
-
-        <!-- Checks for blocks. You know, those {}'s -->
-        <module name="LeftCurly" />
-
-        <!-- Checks for common coding problems -->
         <module name="EqualsHashCode" />
         <module name="IllegalInstantiation" />
-
-        <!-- Miscellaneous other checks. -->
         <module name="ModifierOrder" />
         <module name="GenericWhitespace" />
         <module name="PackageAnnotation" />
         <module name="CovariantEquals" />
         <module name="ModifiedControlVariable" />
-        <module name="NeedBraces"/>
+        <module name="NeedBraces" />
+        <module name="OneStatementPerLine" />
 
         <module name="MethodParamPad">
             <property name="option" value="nospace" />
