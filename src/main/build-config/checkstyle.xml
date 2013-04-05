@@ -45,6 +45,7 @@
         <module name="ModifiedControlVariable" />
         <module name="NeedBraces" />
         <module name="OneStatementPerLine" />
+        <module name="EmptyStatement" />
 
         <module name="MethodParamPad">
             <property name="option" value="nospace" />
